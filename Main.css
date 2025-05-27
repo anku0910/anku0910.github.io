@@ -351,7 +351,8 @@ body {
   text-shadow: 1px 1px 0 #a34928;
 }
 
-.rightbar .group-btn {
+/* 公開化 .group-btn 樣式，讓 sidebar/rightbar/main-area 都能共用 */
+.group-btn {
   background: #fff;
   color: #e08a3d;
   border: none;
@@ -367,11 +368,11 @@ body {
   position: relative;
 }
 
-.rightbar .group-btn:hover {
+.group-btn:hover {
   background: #ffe0b2;
 }
 
-.rightbar .group-btn.disabled-btn {
+.group-btn.disabled-btn {
   pointer-events: none;
   color: #aaa;
   background-color: rgba(255, 255, 255, 0.8);
@@ -379,7 +380,7 @@ body {
   position: relative;
 }
 
-.rightbar .group-btn.disabled-btn::after {
+.group-btn.disabled-btn::after {
   content: '待開發';
   position: absolute;
   top: 50%;
@@ -397,8 +398,8 @@ body {
   opacity: 1;
 }
 
-.rightbar .group-btn.disabled-btn:hover,
-.rightbar .group-btn.disabled-btn:focus {
+.group-btn.disabled-btn:hover,
+.group-btn.disabled-btn:focus {
   background-color: #fff;
   cursor: default;
   outline: none;

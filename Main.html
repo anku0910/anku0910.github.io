@@ -106,11 +106,25 @@
       color: #fff;
       transform: scale(1.06);
     }
+
+    #dialogue-choices {
+      flex-direction: column !important;
+      gap: 12px;
+      display: flex;
+      align-items: flex-start;
+    }
     /* 其他現有樣式保持不變 */
   </style>
 </head>
 
 <body>
+  <!-- 用戶名輸入與顯示 -->
+  <div style="position:fixed;bottom:10px;right:20px;z-index:999;background:#fffbe673;padding:8px 16px;border-radius:8px;box-shadow:0 2px 8px #0001;">
+    <span id="user-greeting"></span>
+    <input id="username-input" type="text" placeholder="輸入用戶名" style="width:120px;" />
+    <button onclick="saveUsername()">確定</button>
+    <span id="sync-status" style="margin-left:10px;color:#888;font-size:0.95em;"></span>
+  </div>
   <div class="main-card">
     <!-- 側邊欄 -->
     <div class="sidebar">
@@ -119,7 +133,6 @@
         <div class="logo-text">旅行中</div>
       </div>
       <div class="dark-frame" style="visibility:hidden"></div>
-      <button class="nav-btn" onclick="showPage('page-home')">首頁</button>
       <button class="nav-btn" onclick="showPage('page-courses')">我的課程</button>
       <button class="nav-btn" onclick="showPage('page-records')">學習紀錄</button>
       <button class="nav-btn" onclick="showPage('page-profile')">個人檔案</button>
@@ -127,7 +140,7 @@
       <button class="nav-btn2" onclick="showPage('page-mission')">任務</button>
       <button class="nav-btn2" onclick="showPage('page-adventure')">旅行</button>
       <button class="nav-btn2" onclick="showPage('page-badge')">徽章</button>
-      <button class="nav-btn2">物品庫</button>
+      <button class="group-btn disabled-btn">物品庫</button>
     </div>
     <!-- 主區塊：標題列+內容 -->
     <div class="main-area">
@@ -173,11 +186,6 @@
           <h2>筆記</h2>
           <p>這裡是筆記內容。</p>
         </div>
-        <!-- 首頁 -->
-        <div id="page-home" style="display:none;">
-          <h2>首頁</h2>
-          <p>這裡是首頁內容。</p>
-        </div>
         <!-- 學習紀錄 -->
         <div id="page-records" style="display:none;">
           <h2>學習紀錄</h2>
@@ -210,7 +218,7 @@
           </div>
           <div id="lesson-units" class="unit-btns-wrapper"></div>
           <div class="unit-content-frame" style="background: #fff; border-radius: 8px; padding: 18px 24px; margin-bottom: 20px;">
-            <h3 id="unit-title" style="color: #b75e14; font-size: 1.2rem; margin-bottom: 8px;">單元標題</h3>
+            <h3 id="unit-title" style="color: #b75e14; font-size: 1.2rem; margin-top: -4px;">單元標題</h3>
             <div id="unit-content" style="color: #333; font-size: 1rem;">單元內容會顯示在這裡。</div>
           </div>
         </div>
@@ -246,6 +254,155 @@
   <!-- AI學伴  -->
   <div id="webchat" style="z-index: 2; position:absolute; bottom: 0%; right:0; width: 300px; height: 400px; display: none;"></div>
   <script>
+    // Airtable 設定
+    const AIRTABLE_API_KEY = "patNtYAmGlBk2YYc9.463fef5c30e8d38764c97883dceca23fdce8b527cd0aa8d57a4e400657c18a60";
+    const AIRTABLE_BASE_ID = "appWt6fSHWOVeEs9O";
+    const AIRTABLE_TABLE = "Records";
+    let currentUsername = localStorage.getItem('username') || '';
+    let userRecordId = null;
+    let userProgress = {}; // {lessonId: unitIdx}
+
+    // 用戶名儲存與顯示
+    function saveUsername() {
+      const input = document.getElementById('username-input');
+      const name = input.value.trim();
+      if (!name) return;
+      currentUsername = name;
+      localStorage.setItem('username', name);
+      document.getElementById('user-greeting').textContent = `你好, ${name}！`;
+      input.style.display = 'none';
+      input.nextElementSibling.style.display = 'none';
+      fetchUserProgress();
+    }
+    function showUsernameUI() {
+      const input = document.getElementById('username-input');
+      const greeting = document.getElementById('user-greeting');
+      if (currentUsername) {
+        greeting.textContent = `你好, ${currentUsername}！`;
+        input.style.display = 'none';
+        input.nextElementSibling.style.display = 'none';
+        fetchUserProgress();
+      } else {
+        greeting.textContent = '請輸入用戶名：';
+        input.style.display = '';
+        input.nextElementSibling.style.display = '';
+      }
+    }
+    window.addEventListener('DOMContentLoaded', showUsernameUI);
+
+    function setSyncStatus(msg, color = "#888") {
+      const el = document.getElementById('sync-status');
+      if (el) {
+        el.textContent = msg;
+        el.style.color = color;
+      }
+    }
+
+    // Airtable 互動
+    async function fetchUserProgress() {
+      if (!currentUsername) return;
+      setSyncStatus("同步中...", "#888");
+      try {
+        // 查詢 Airtable 是否有此用戶
+        const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}?filterByFormula={username}='${encodeURIComponent(currentUsername)}'`;
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
+        });
+        const data = await res.json();
+        if (data.records && data.records.length > 0) {
+          userRecordId = data.records[0].id;
+          userProgress = data.records[0].fields.progress ? JSON.parse(data.records[0].fields.progress) : {};
+        } else {
+          // 新增用戶
+          const createRes = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ fields: { username: currentUsername, progress: "{}" } })
+          });
+          const createData = await createRes.json();
+          userRecordId = createData.id;
+          userProgress = {};
+        }
+        setSyncStatus("已同步", "#2a8a2a");
+        // 若目前在課程頁，刷新進度
+        updateLessonProgressUI();
+        // 新增：刷新學習紀錄卡片
+        renderLearningRecords();
+      } catch (e) {
+        setSyncStatus("同步失敗", "#c00");
+      }
+    }
+
+    // 學習紀錄卡片渲染
+    function renderLearningRecords() {
+      const recordsPage = document.getElementById('page-records');
+      if (!recordsPage) return;
+      let html = '<h2 style="text-align:center;">學習紀錄</h2>';
+      html += '<div class="learning-records-list" style="display:flex;flex-wrap:wrap;gap:16px;">';
+      let hasRecord = false;
+      for (const lessonId in lessons) {
+        const lesson = lessons[lessonId];
+        const unitIdx = userProgress[lessonId] || 0;
+        const total = lesson.units.length;
+        const percent = Math.round(((unitIdx + 1) / total) * 100);
+        const unitTitle = lesson.units[unitIdx]?.title || '';
+        html += `
+          <div class="record-card" style="background:#fffbe6;border:1px solid #e0c08a;border-radius:10px;padding:18px 22px;min-width:220px;max-width:320px;box-shadow:0 2px 8px #0001;">
+            <div style="font-size:1.1em;font-weight:bold;color:#b75e14;margin-bottom:6px;">${lesson.title}</div>
+            <div style="color:#333;margin-bottom:4px;">目前單元：<span style="color:#2a8a2a;">${unitTitle}</span></div>
+            <div style="color:#888;margin-bottom:8px;">進度：<span style="color:#b75e14;font-weight:bold;">${percent}%</span></div>
+            <div style="height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-bottom:2px;">
+              <div style="height:100%;width:${percent}%;background:#b75e14;"></div>
+            </div>
+          </div>
+        `;
+        hasRecord = true;
+      }
+      html += '</div>';
+      if (!hasRecord) html += '<div style="color:#888;margin-top:16px;">尚無學習紀錄</div>';
+      recordsPage.innerHTML = html;
+    }
+
+    async function updateUserProgress(lessonId, unitIdx) {
+      if (!currentUsername || !userRecordId) return;
+      userProgress[lessonId] = unitIdx;
+      setSyncStatus("同步中...", "#888");
+      try {
+        await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}/${userRecordId}`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ fields: { progress: JSON.stringify(userProgress) } })
+        });
+        setSyncStatus("已同步", "#2a8a2a");
+        updateLessonProgressUI();
+      } catch (e) {
+        setSyncStatus("同步失敗", "#c00");
+      }
+    }
+
+    // 進度條與進度數字刷新
+    function updateLessonProgressUI(unitIdxOverride) {
+      // 只在課堂頁有效
+      const lessonPage = document.getElementById('page-lesson');
+      if (!lessonPage || lessonPage.style.display === 'none') return;
+      const lessonTitle = document.getElementById('lesson-title').textContent;
+      let lessonId = '';
+      for (const k in lessons) if (lessons[k].title === lessonTitle) lessonId = k;
+      if (!lessonId) return;
+      // 若有傳入 unitIdxOverride 則優先用，否則用 userProgress
+      const unitIdx = (typeof unitIdxOverride === 'number') ? unitIdxOverride : (userProgress[lessonId] || 0);
+      const total = lessons[lessonId].units.length;
+      const percent = Math.round(((unitIdx + 1) / total) * 100);
+      document.getElementById('lesson-progress').textContent = percent + '%';
+
+    }
+
     const lessons = {
       'basic-pc': {
         title: '電腦基礎概念與操作',
@@ -254,15 +411,16 @@
           {
             title: '單元一：電腦的組成',
             content: `
-              <div>
-                <div style="margin-bottom:16px; display: flex; gap: 12px; flex-wrap: wrap;">
+              <div style="display: flex; flex-direction: row; gap: 24px;">
+                <div id="subunit-content" style="flex:1;"></div>
+                <div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-end;">
                   <button class="subunit-btn" id="subunit-btn-0" onclick="showSubUnit(0)">主機</button>
                   <button class="subunit-btn" id="subunit-btn-1" onclick="showSubUnit(1)">螢幕</button>
                   <button class="subunit-btn" id="subunit-btn-2" onclick="showSubUnit(2)">鍵盤</button>
                   <button class="subunit-btn" id="subunit-btn-3" onclick="showSubUnit(3)">滑鼠</button>
-                  <button class="subunit-btn" id="subunit-btn-4" onclick="showSubUnit(4)">互動表格</button>
+                  <button class="subunit-btn" id="subunit-btn-4" onclick="showSubUnit(4)">小測驗</button>
                 </div>
-                <div id="subunit-content"></div>
+              </div>
               </div>
             `
           },
@@ -297,7 +455,7 @@
     };
 
     function showPage(pageId, lessonId) {
-      const pages = ['page-home', 'page-notes', 'page-courses', 'page-records', 'page-lesson', 'page-profile', 'page-adventure', 'page-mission', 'page-badge'];
+      const pages = [ 'page-notes', 'page-courses', 'page-records', 'page-lesson', 'page-profile', 'page-adventure', 'page-mission', 'page-badge'];
       pages.forEach(id => {
         document.getElementById(id).style.display = (id === pageId) ? '' : 'none';
       });
@@ -314,7 +472,9 @@
         });
         document.getElementById('lesson-units').innerHTML = unitListHtml;
         // 預設顯示第一個單元內容並高亮
-        showUnit(lessonId, 0);
+        let unitIdx = 0;
+        if (userProgress[lessonId] !== undefined) unitIdx = userProgress[lessonId];
+        showUnit(lessonId, unitIdx);
       }
     }
     // 顯示單元內容
@@ -334,6 +494,10 @@
       // 高亮目前按鈕
       const btns = document.querySelectorAll('.unit-btn');
       btns.forEach((btn, idx) => btn.classList.toggle('active', idx === unitIdx));
+      // 寫入進度
+      updateUserProgress(lessonId, unitIdx);
+      // 立即刷新進度數字與進度條（用傳入的 unitIdx）
+      updateLessonProgressUI(unitIdx);
     }
 
     // 單元一子單元內容
@@ -589,8 +753,15 @@
           frame.style.background = '';
           const html = e.dataTransfer.getData('text/plain');
           if (html) {
-            // 僅允許一個cell
-            frame.innerHTML = html;
+            
+            // 檢查是否為有效的拖拉元素
+            if(frame.id == "frame-input" || frame.id == "frame-output") {
+              frame.innerHTML += html;
+            } else {
+              // 僅允許一個cell
+              frame.innerHTML = html;
+            }
+            
             // 重新掛載拖拉事件
             const dropped = frame.querySelector('.draggable-cell');
             if (dropped) {
