@@ -12,8 +12,7 @@
   <link rel="stylesheet" href="Main.css">
    <script src="https://cdn.botpress.cloud/webchat/v2.4/inject.js"></script>
   <style>
-    #webchat {
-    }
+
     #webchat .bpWebchat {
       position: unset;
       width: 100%;
@@ -25,6 +24,84 @@
     #webchat .bpFab {
       display: none;
     }
+
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .unit-content-frame {
+      background: #fff;
+      border-radius: 8px;
+      padding: 18px 24px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+    }
+
+
+    .unit-btns-wrapper {
+      display: flex;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .unit-btn {
+      min-width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: #bbb;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      outline: none;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .unit-btn.active, .unit-btn:focus {
+      background: #b75e14;
+      transform: scale(1.08);
+    }
+    .subunit-btn {
+      min-width: 72px;
+      height: 36px;
+      border: none;
+      border-radius: 18px;
+      background: #eee;
+      color: #b75e14;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, transform 0.1s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      outline: none;
+      padding: 0 18px;
+      margin-right: 0;
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .subunit-btn.active, .subunit-btn:focus {
+      background: #b75e14;
+      color: #fff;
+      transform: scale(1.06);
+    }
+    /* 其他現有樣式保持不變 */
   </style>
 </head>
 
@@ -67,7 +144,7 @@
           <div class="lesson-list">
             <div class="lesson-card">
               <div class="lesson-title">電腦基礎概念與操作</div>
-              <div class="lesson-desc">介紹個人電腦的基本架構與組成，包含，桌面操作、輸入輸出設備、檔案類型、資料傳輸速度基本功能等。適合無基礎學員，建立使用電腦的基本技能和知識。</div>
+              <div class="lesson-desc">介紹個人電腦的基本架構與組成，包含，桌面操作、輸入輸出設備、檔案類型、多工處理基本功能等。適合無基礎學員，建立使用電腦的基本技能和知識。</div>
               <div class="lesson-meta">
                 <span>● 課程 初學者級</span>
                 <button class="lesson-btn" onclick="showPage('page-lesson', 'basic-pc')">上課</button>
@@ -82,7 +159,7 @@
               </div>                
             </div>
           </div>          
-          <div class="progress-bar">
+          <div class="progress-bar" >
             <div class="progress-bar-inner" style="width:3%"></div>
           </div>          
         </div>        
@@ -126,7 +203,11 @@
               </div>
             </div>
           </div>
-          <button class="lesson-btn" style="margin: 20px;" onclick="showPage('page-courses')">回課程列表</button>
+          <div id="lesson-units" class="unit-btns-wrapper"></div>
+          <div class="unit-content-frame" style="background: #fff; border-radius: 8px; padding: 18px 24px; margin-bottom: 20px;">
+            <h3 id="unit-title" style="color: #b75e14; font-size: 1.2rem; margin-bottom: 8px;">單元標題</h3>
+            <div id="unit-content" style="color: #333; font-size: 1rem;">單元內容會顯示在這裡。</div>
+          </div>
         </div>
         <!-- 任務頁面 -->
         <div id="page-mission" style="display:none;">
@@ -143,14 +224,14 @@
     </div>
     <!-- 右側欄 -->
     <div class="rightbar">
-      <button class="unit-btn">切換單元</button>
+      <button class="unit-btn1">切換單元</button>
       <div class="dark-frame" style="visibility:hidden; margin-left: 11px;"></div>
       <div class="section-title">社群</div>
       <div class="dark-frame" style="margin-left: 11px;"></div>
       <button class="group-btn disabled-btn">討論區</button>
       <button class="nav-btn2">作品</button>
-      <button class="nav-btn2">好友</button>
-      <button class="nav-btn2">排行榜</button>
+      <button class="group-btn disabled-btn">好友</button>
+      <button class="group-btn disabled-btn">排行榜</button>
       <button class="nav-btn2" onclick="openAIWebchat()">AI學伴</button>
       <div class="dark-frame" style="margin-left: 11px;"></div>
       <div class="ad">廣告</div>
@@ -159,10 +240,18 @@
 
   <!-- 挑戰小視窗 Modal -->
   <div id="challenge-modal" style="display:none; position: fixed; left: 50%; top: 60%; transform: translate(-50%, 0); min-width: 320px; min-height: 120px; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); z-index: 9999; padding: 24px 32px; text-align: center;">
-    <h3 style="margin-bottom: 8px;position: absolute;">挑戰！</h3>    
+    <h3 style="margin-bottom: 8px;position: absolute; top:16  px">挑戰！</h3>    
     <div class="progress-bar">
-      <p style="position: relative; top: -16px; z-index: 2;">這裡是挑戰視窗內容。</p>
-      <div class="progress-bar-inner" style="width:100%"></div>
+  <!-- 挑戰條-->
+      <div class="progress-bar-inner" style="position: relative; width:100%; top: -16px; " >
+      <p style="position: relative; top: -0px; z-index: 2;color: #fff;left: -25%;">完成一個課程。</p>
+      </div>
+    </div>
+    <div class="progress-bar" style="margin-top:auto; ">
+  <!-- 挑戰條-->
+      <div class="progress-bar-inner" style="position: relative; width:100%; top: -16px;" >
+      <p style="position: relative; top: -0px; z-index: 2;color: #fff;left: -25%;">完成三個課程。</p>
+      </div>
     </div>
     <button onclick="closeChallengeModal()" style="margin-top: 0px;" class="lesson-btn">關閉</button>
   </div>
@@ -172,11 +261,49 @@
     const lessons = {
       'basic-pc': {
         title: '電腦基礎概念與操作',
-        desc: '介紹個人電腦的基本架構與組成，包含桌面操作、輸入輸出設備、檔案類型、資料傳輸速度基本功能等。適合無基礎學員，建立使用電腦的基本技能和知識。'
+        desc: '介紹個人電腦的基本架構與組成，包含桌面操作、輸入輸出設備、檔案類型、資料傳輸速度基本功能等。適合無基礎學員，建立使用電腦的基本技能和知識。',
+        units: [
+          { 
+            title: '單元一：電腦的組成', 
+            content: `
+              <div>
+                <div style="margin-bottom:16px; display: flex; gap: 12px; flex-wrap: wrap;">
+                  <button class="subunit-btn" id="subunit-btn-0" onclick="showSubUnit(0)">主機</button>
+                  <button class="subunit-btn" id="subunit-btn-1" onclick="showSubUnit(1)">螢幕</button>
+                  <button class="subunit-btn" id="subunit-btn-2" onclick="showSubUnit(2)">鍵盤</button>
+                  <button class="subunit-btn" id="subunit-btn-3" onclick="showSubUnit(3)">滑鼠</button>
+                  <button class="subunit-btn" id="subunit-btn-4" onclick="showSubUnit(4)">互動表格</button>
+                </div>
+                <div id="subunit-content"></div>
+              </div>
+            `
+          },
+          { title: '單元二：桌面操作', content: '學習如何操作桌面、開啟程式、管理視窗。' },
+          { title: '單元三：輸入輸出設備', content: '認識各種輸入與輸出設備，例如滑鼠、鍵盤、印表機、螢幕等。' },
+          { title: '單元四：檔案類型', content: '了解常見的檔案類型與副檔名，如何辨識與管理。' },
+          { title: '單元五：多工處理', content: '介紹多工處理的基本概念與在作業系統中的應用。' },
+          { title: '單元六：資料傳輸速度', content: '說明資料傳輸速度的單位與影響因素。' },
+          { title: '單元七：電腦安全', content: '基礎電腦安全知識與防護措施。' },
+          { title: '單元八：軟體安裝', content: '學習如何安裝與移除應用程式。' },
+          { title: '單元九：網路基礎', content: '簡介網路連線與網路設定。' },
+          { title: '單元十：常見問題排解', content: '遇到電腦問題時的基本排解方法。' }
+        ]
       },
       'os-file': {
         title: '作業系統與檔案管理',
-        desc: '介紹不同作業系統的架構與功能、使用者權限，學習如何管理檔案與資料夾，理解檔案系統的運作原理，並實務操作常用的檔案管理工具。'
+        desc: '介紹不同作業系統的架構與功能、使用者權限，學習如何管理檔案與資料夾，理解檔案系統的運作原理，並實務操作常用的檔案管理工具。',
+        units: [
+          { title: '單元一：作業系統介紹', content: '本單元說明作業系統的種類與基本功能。' },
+          { title: '單元二：檔案與資料夾管理', content: '學習如何建立、刪除、移動檔案與資料夾。' },
+          { title: '單元三：使用者權限', content: '了解作業系統中的使用者權限與安全性設定。' },
+          { title: '單元四：檔案系統原理', content: '認識檔案系統的運作方式與常見格式。' },
+          { title: '單元五：實用檔案管理工具', content: '介紹常用的檔案管理工具與操作技巧。' },
+          { title: '單元六：備份與還原', content: '學習如何備份與還原檔案。' },
+          { title: '單元七：磁碟管理', content: '磁碟分割、格式化與管理。' },
+          { title: '單元八：系統設定', content: '作業系統常見設定與調整。' },
+          { title: '單元九：資源監控', content: '如何監控系統資源與效能。' },
+          { title: '單元十：常見問題排解', content: '作業系統與檔案管理常見問題的排解方法。' }
+        ]
       }
       // 你可以繼續新增更多課程資料
     };
@@ -190,55 +317,334 @@
       if (pageId === 'page-lesson' && lessonId && lessons[lessonId]) {
         document.getElementById('lesson-title').textContent = lessons[lessonId].title;
         document.getElementById('lesson-desc').textContent = lessons[lessonId].desc;
+        // 動態產生單元小按鈕（僅顯示一、二、三...）
+        const numToZh = ['一','二','三','四','五','六','七','八','九','十'];
+        let unitListHtml = '';
+        lessons[lessonId].units.forEach((unit, idx) => {
+          const zh = numToZh[idx] || (idx+1);
+          unitListHtml += `<button class="unit-btn" id="unit-btn-${idx}" onclick="showUnit('${lessonId}', ${idx})">${zh}</button>`;
+        });
+        document.getElementById('lesson-units').innerHTML = unitListHtml;
+        // 預設顯示第一個單元內容並高亮
+        showUnit(lessonId, 0);
       }
     }
-      // 挑戰小視窗
-    function showChallengeModal() {
-      // 聚焦遮罩
-      let mask = document.getElementById('challenge-mask');
-      if (!mask) {
-        mask = document.createElement('div');
-        mask.id = 'challenge-mask';
-        mask.style.position = 'fixed';
-        mask.style.left = '0';
-        mask.style.top = '0';
-        mask.style.width = '100vw';
-        mask.style.height = '100vh';
-        mask.style.background = 'rgba(0,0,0,0.35)';
-        mask.style.zIndex = '9998';
-        mask.onclick = closeChallengeModal;
-        document.body.appendChild(mask);
+    // 顯示單元內容
+    function showUnit(lessonId, unitIdx) {
+      const unit = lessons[lessonId].units[unitIdx];
+      document.getElementById('unit-title').textContent = unit.title;
+      // 判斷是否為"單元一：電腦的組成"
+      if (unit.title.indexOf('電腦的組成') !== -1) {
+        document.getElementById('unit-content').innerHTML = unit.content;
+        showSubUnit(0); // 預設顯示第一個子單元
+      } else if (unit.title.indexOf('互動表格') !== -1) {
+        document.getElementById('unit-content').innerHTML = unit.content;
+        renderInteractiveTableV2();
       } else {
-        mask.style.display = '';
+        document.getElementById('unit-content').textContent = unit.content;
       }
-      document.getElementById('challenge-modal').style.display = '';
-    }
-    function closeChallengeModal() {
-      document.getElementById('challenge-modal').style.display = 'none';
-      let mask = document.getElementById('challenge-mask');
-      if (mask) mask.style.display = 'none';
+      // 高亮目前按鈕
+      const btns = document.querySelectorAll('.unit-btn');
+      btns.forEach((btn, idx) => btn.classList.toggle('active', idx === unitIdx));
     }
 
-    function openAIWebchat() {
-      // 切換 webchat 顯示/隱藏
-      const webchatDiv = document.getElementById('webchat');
-      if (!webchatDiv) return;
-      if (webchatDiv.style.display === 'none' || webchatDiv.style.display === '') {
-        webchatDiv.style.display = '';
-        // 僅在 webchat ready 時開啟
-        if (window.botpress && typeof window.botpress.open === 'function') {
-          window.botpress.open();
-        }
-        webchatDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        webchatDiv.style.display = 'none';
-        // 可選：關閉 webchat 視窗（如有 close 方法）
-        if (window.botpress && typeof window.botpress.close === 'function') {
-          window.botpress.close();
-        }
+    // 單元一子單元內容
+    const subUnitContents = [
+      // 主機
+      `<div>
+        <div id="dialogue-system" style="margin-bottom:16px;">
+          <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div>
+          <div id="dialogue-choices" style="display:flex;gap:12px;"></div>
+        </div>
+        主機：電腦的核心部件，負責資料處理與運算。
+      </div>`,
+      // 螢幕
+      `<div>
+        <div id="dialogue-system" style="margin-bottom:16px;">
+          <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div>
+          <div id="dialogue-choices" style="display:flex;gap:12px;"></div>
+        </div>
+        螢幕：顯示電腦輸出的資訊，屬於輸出設備。
+      </div>`,
+      // 鍵盤
+      `<div>
+        <div id="dialogue-system" style="margin-bottom:16px;">
+          <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div>
+          <div id="dialogue-choices" style="display:flex;gap:12px;"></div>
+        </div>
+        鍵盤：常見的輸入設備，用於輸入文字與指令。
+      </div>`,
+      // 滑鼠
+      `<div>
+        <div id="dialogue-system" style="margin-bottom:16px;">
+          <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div>
+          <div id="dialogue-choices" style="display:flex;gap:12px;"></div>
+        </div>
+        滑鼠：常見的輸入設備，用於控制游標與操作介面。
+      </div>`,
+      // 互動表格
+      `<div id="interactive-table-frame" style='margin: 4px 0;'>
+        <div style="border:2px solid #b75e14; border-radius:12px; padding:4px; background:#fff;">
+          <div id="dialogue-system" style="margin-bottom:4px;">
+            <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:-24px;"></div>
+            <div id="dialogue-choices" style="display:flex;gap:4px;"></div>
+          </div>
+          <div id="drag-table-container"></div>
+          <div style="margin-top:8px;">
+            <span style="font-size:0.95em;color:#888;">提示：拖曳下方裝置到正確分類框中。</span>
+          </div>
+        </div>
+      </div>`
+    ];
+
+    function showSubUnit(idx) {
+      const sub = document.getElementById('subunit-content');
+      if (!sub) return;
+      sub.innerHTML = subUnitContents[idx];
+      // 高亮目前子單元按鈕
+      for (let i = 0; i < 5; i++) {
+        const btn = document.getElementById('subunit-btn-' + i);
+        if (btn) btn.classList.toggle('active', i === idx);
       }
+      // 對話引導
+      renderDialogueSystemForSubunit(idx);
+      if (idx === 4) renderInteractiveTableV2();
     }
 
+    // 對話選擇系統 for 單元一子單元
+    function renderDialogueSystemForSubunit(idx) {
+      const dialogueSets = [
+        // 主機
+        [
+          {
+            text: "歡迎進入電腦的組成介紹。你知道主機的主要功能是什麼嗎？",
+            choices: [
+              { text: "資料處理與運算", next: 1 },
+              { text: "顯示畫面", next: 2 }
+            ]
+          },
+          {
+            text: "答對了！主機負責資料處理與運算。下一步，來看看螢幕。",
+            choices: [
+              { text: "前往螢幕", action: () => showSubUnit(1) }
+            ]
+          },
+          {
+            text: "主機主要負責資料處理與運算，顯示畫面是螢幕的功能喔！",
+            choices: [
+              { text: "再試一次", next: 0 }
+            ]
+          }
+        ],
+        // 螢幕
+        [
+          {
+            text: "螢幕屬於哪一類設備？",
+            choices: [
+              { text: "輸入設備", next: 2 },
+              { text: "輸出設備", next: 1 }
+            ]
+          },
+          {
+            text: "正確！螢幕是輸出設備。接下來認識鍵盤。",
+            choices: [
+              { text: "前往鍵盤", action: () => showSubUnit(2) }
+            ]
+          },
+          {
+            text: "螢幕是輸出設備，負責顯示資訊。",
+            choices: [
+              { text: "再試一次", next: 0 }
+            ]
+          }
+        ],
+        // 鍵盤
+        [
+          {
+            text: "鍵盤的主要用途是？",
+            choices: [
+              { text: "輸入文字與指令", next: 1 },
+              { text: "播放音樂", next: 2 }
+            ]
+          },
+          {
+            text: "答對了！鍵盤是常見的輸入設備。接下來看看滑鼠。",
+            choices: [
+              { text: "前往滑鼠", action: () => showSubUnit(3) }
+            ]
+          },
+          {
+            text: "鍵盤主要用於輸入文字與指令，播放音樂是其他設備的功能。",
+            choices: [
+              { text: "再試一次", next: 0 }
+            ]
+          }
+        ],
+        // 滑鼠
+        [
+          {
+            text: "滑鼠屬於哪一類設備？",
+            choices: [
+              { text: "輸入設備", next: 1 },
+              { text: "輸出設備", next: 2 }
+            ]
+          },
+          {
+            text: "正確！滑鼠是輸入設備。最後來挑戰互動表格吧！",
+            choices: [
+              { text: "前往互動表格", action: () => showSubUnit(4) }
+            ]
+          },
+          {
+            text: "滑鼠是輸入設備，請再試一次！",
+            choices: [
+              { text: "再試一次", next: 0 }
+            ]
+          }
+        ]
+      ];
+
+      const dialogue = dialogueSets[idx];
+      if (!dialogue) {
+        // 沒有對話內容時，將 dialogue-system 的 margin-bottom 設為 0
+        const sys = document.getElementById('dialogue-system');
+        if (sys) sys.style.marginBottom = '0';
+        return;
+      }
+      const textDiv = document.getElementById('dialogue-text');
+      const choicesDiv = document.getElementById('dialogue-choices');
+      let dialogueIdx = 0;
+
+      function renderDialogue(idx) {
+        const node = dialogue[idx];
+        textDiv.textContent = node.text;
+        choicesDiv.innerHTML = '';
+        node.choices.forEach(choice => {
+          const btn = document.createElement('button');
+          btn.textContent = choice.text;
+          btn.className = 'subunit-btn';
+          btn.onclick = () => {
+            if (typeof choice.action === 'function') {
+              choice.action();
+            } else if (typeof choice.next === 'number') {
+              renderDialogue(choice.next);
+            }
+          };
+          choicesDiv.appendChild(btn);
+        });
+      }
+      renderDialogue(dialogueIdx);
+    }
+    // 新版互動式表格JS
+    function renderInteractiveTableV2() {
+      const container = document.getElementById('drag-table-container');
+      if (!container) return;
+      container.innerHTML = `
+        <div style="display: flex; align-items: flex-start; gap: 24px; position: relative; margin-top:0; padding-top:0;">
+          <div id="table-frame-move" style="display:inline-block; border:2px dashed #b75e14; border-radius:10px; padding:12px; background:#fff; cursor:move; margin-top:0;">
+            <table style="border-collapse:collapse;width:100%;max-width:420px;margin-top:0;">
+              <tr>
+            <th style="border:1px solid #b75e14;padding:8px 12px;background:#ffe5c2;">滑鼠</th>
+            <th style="border:1px solid #b75e14;padding:8px 12px;background:#ffe5c2;">鍵盤</th>
+            <th style="border:1px solid #b75e14;padding:8px 12px;background:#e7eaff;">螢幕</th>
+            <th style="border:1px solid #b75e14;padding:8px 12px;background:#e7eaff;">喇叭</th>
+              </tr>
+              <tr>
+            <td id="frame-mouse" class="drop-frame" style="border:1px solid #b75e14;height:60px;min-width:80px;"></td>
+            <td id="frame-keyboard" class="drop-frame" style="border:1px solid #b75e14;height:60px;min-width:80px;"></td>
+            <td id="frame-screen" class="drop-frame" style="border:1px solid #b75e14;height:60px;min-width:80px;"></td>
+            <td id="frame-speaker" class="drop-frame" style="border:1px solid #b75e14;height:60px;min-width:80px;"></td>
+              </tr>
+              <tr>
+            <th style="border:1px solid #b75e14;padding:8px 12px;background:#e7f7e7;" colspan="2">輸入設備</th>
+            <th style="border:1px solid #b75e14;padding:8px 12px;background:#f7e7e7;" colspan="2">輸出設備</th>
+              </tr>
+              <tr>
+            <td id="frame-input" class="drop-frame" colspan="2" style="border:1px solid #b75e14;height:60px;"></td>
+            <td id="frame-output" class="drop-frame" colspan="2" style="border:1px solid #b75e14;height:60px;"></td>
+              </tr>
+            </table>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:40px;margin-top:0;">
+            <div class="draggable-cell" draggable="true" data-type="mouse" style="border:1px solid #888;padding:6px 8px;border-radius:8px;cursor:grab;background:#f7f7f7;min-width:40px;text-align:center;">滑鼠</div>
+            <div class="draggable-cell" draggable="true" data-type="keyboard" style="border:1px solid #888;padding:6px 8px;border-radius:8px;cursor:grab;background:#f7f7f7;min-width:40px;text-align:center;">鍵盤</div>
+            <div class="draggable-cell" draggable="true" data-type="input" style="border:1px solid #888;padding:6px 8px;border-radius:8px;cursor:grab;background:#f7f7f7;min-width:40px;text-align:center;">輸入設備</div>
+            <div class="draggable-cell" draggable="true" data-type="screen" style="border:1px solid #888;padding:6px 8px;border-radius:8px;cursor:grab;background:#f7f7f7;min-width:40px;text-align:center;">螢幕</div>
+            <div class="draggable-cell" draggable="true" data-type="speaker" style="border:1px solid #888;padding:6px 8px;border-radius:8px;cursor:grab;background:#f7f7f7;min-width:40px;text-align:center;">喇叭</div>
+            <div class="draggable-cell" draggable="true" data-type="output" style="border:1px solid #888;padding:6px 8px;border-radius:8px;cursor:grab;background:#f7f7f7;min-width:40px;text-align:center;">輸出設備</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // 拖拉事件
+      container.querySelectorAll('.draggable-cell').forEach(cell => {
+        cell.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', cell.outerHTML);
+          setTimeout(() => cell.style.visibility = 'hidden', 0);
+        });
+        cell.addEventListener('dragend', e => {
+          cell.style.visibility = '';
+        });
+      });
+
+      container.querySelectorAll('.drop-frame').forEach(frame => {
+        frame.addEventListener('dragover', e => {
+          e.preventDefault();
+          frame.style.background = '#fffbe6';
+        });
+        frame.addEventListener('dragleave', e => {
+          frame.style.background = '';
+        });
+        frame.addEventListener('drop', e => {
+          e.preventDefault();
+          frame.style.background = '';
+          const html = e.dataTransfer.getData('text/plain');
+          if (html) {
+            // 僅允許一個cell
+            frame.innerHTML = html;
+            // 重新掛載拖拉事件
+            const dropped = frame.querySelector('.draggable-cell');
+            if (dropped) {
+              dropped.addEventListener('dragstart', ev => {
+                ev.dataTransfer.setData('text/plain', dropped.outerHTML);
+                setTimeout(() => dropped.style.visibility = 'hidden', 0);
+              });
+              dropped.addEventListener('dragend', ev => {
+                dropped.style.visibility = '';
+              });
+            }
+          }
+        });
+      });
+
+      // 讓整個表格框可移動
+      const tableFrame = document.getElementById('table-frame-move');
+      let isDragging = false, startX = 0, startY = 0, origX = 0, origY = 0;
+      tableFrame.addEventListener('mousedown', function(e) {
+        if (e.target !== tableFrame) return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = tableFrame.getBoundingClientRect();
+        origX = rect.left;
+        origY = rect.top;
+        tableFrame.style.position = 'fixed';
+        tableFrame.style.zIndex = 99;
+        document.body.style.userSelect = 'none';
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        tableFrame.style.left = (origX + e.clientX - startX) + 'px';
+        tableFrame.style.top = (origY + e.clientY - startY) + 'px';
+      });
+      document.addEventListener('mouseup', function() {
+        if (isDragging) {
+          isDragging = false;
+          document.body.style.userSelect = '';
+        }
+      });
+    }
   </script>
   <!-- Botpress 初始化腳本移到這裡 -->
   <script>

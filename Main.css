@@ -351,7 +351,7 @@ body {
   box-shadow: 2px 0 8px #e08a3d44 inset;
 }
 
-.rightbar .unit-btn {
+.rightbar .unit-btn1 {
   z-index: 2;
   background: #fff;
   color: #e08a3d;
@@ -367,7 +367,7 @@ body {
   letter-spacing: 2px;
 }
 
-.rightbar .unit-btn:hover {
+.rightbar .unit-btn1:hover {
   background: #ffe0b2;
 }
 
@@ -539,4 +539,22 @@ position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.wrapper{
+  display: flex;
+  gap: 20px;
+  width: 300px;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+}
+.card{
+  scroll-snap-align: center;
+  box-sizing: border-box;
+  padding: 20px 30px;
+  flex-shrink: 0;
+  width: 300px;
+  background-color: white;
+  border-radius: 14px;
+  text-align: center;
 }
