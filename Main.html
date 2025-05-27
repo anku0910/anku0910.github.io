@@ -11,6 +11,7 @@
   <link href="./Main_files/css2" rel="stylesheet">
   <link rel="stylesheet" href="Main.css">
   <script src="https://cdn.botpress.cloud/webchat/v2.4/inject.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     #webchat .bpWebchat {
       position: unset;
@@ -111,7 +112,16 @@
       flex-direction: column !important;
       gap: 12px;
       display: flex;
-      align-items: flex-start;
+      align-items:
+    }
+
+    #dialogue-text {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #b75e14; 
+      margin-bottom: 20px;
+      min-height: 60px;
     }
     /* 其他現有樣式保持不變 */
   </style>
@@ -138,7 +148,7 @@
       <button class="nav-btn" onclick="showPage('page-profile')">個人檔案</button>
       <div class="dark-frame"></div>
       <button class="nav-btn2" onclick="showPage('page-mission')">任務</button>
-      <button class="nav-btn2" onclick="showPage('page-adventure')">旅行</button>
+      <button class="group-btn disabled-btn">旅行</button>
       <button class="nav-btn2" onclick="showPage('page-badge')">徽章</button>
       <button class="group-btn disabled-btn">物品庫</button>
     </div>
@@ -189,12 +199,59 @@
         <!-- 學習紀錄 -->
         <div id="page-records" style="display:none;">
           <h2>學習紀錄</h2>
-          <p>這裡是學習紀錄內容。</p>
+          <p>請登入。</p>
         </div>
         <!-- 個人檔案頁面 -->
         <div id="page-profile" style="display:none;">
-          <h2>個人檔案</h2>
-          <p>這裡是個人檔案內容。</p>
+          <h2 style="text-align:center; color:#b75e14; letter-spacing:2px; margin-bottom:18px;">個人檔案</h2>
+          <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start;justify-content:center;">
+            <!-- 基本資料卡 -->
+            <div style="background:#fff2e6;border-radius:14px;box-shadow:0 2px 8px #b75e1422;padding:24px 32px;min-width:260px;max-width:320px;">
+              <div style="text-align:center;">
+                <img src="images/ChatGPT Image 2025年4月30日 上午07_37_57 3.png" alt="頭像" style="width:90px;height:90px;border-radius:50%;margin-bottom:12px;border:3px solid #b75e14;">
+                <div style="font-size:1.2em;font-weight:bold;color:#e6bf9f;margin-bottom:4px;" id="profile-username"></div>
+                <div style="color:#888;font-size:0.98em;margin-bottom:8px;">學習者</div>
+                <span id="current-username" style="font-size:1.08em;color:#b75e14;font-weight:bold;"></span>
+                <button style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;" onclick="editProfile()">編輯資料</button>
+              </div>
+              <div style="margin-top:18px;">
+                <div style="color:#666;font-size:0.98em;margin-bottom:4px;">Email: <span id="profile-email">未設定</span></div>
+                <div style="color:#666;font-size:0.98em;margin-bottom:4px;">學校/單位: <span id="profile-school">未設定</span></div>
+                <div style="color:#666;font-size:0.98em;margin-bottom:4px;">年級: <span id="profile-grade">未設定</span></div>
+                <div style="color:#666;font-size:0.98em;margin-bottom:4px;">興趣: <span id="profile-interest">未設定</span></div>
+              </div>
+            </div>
+            <!-- 學習統計卡 -->
+            <div style="background:#e7f7e7;border-radius:14px;box-shadow:0 2px 8px #8ad08a22;padding:24px 32px;min-width:260px;max-width:320px;">
+              <div style="font-size:1.1em;font-weight:bold;color:#2a8a2a;margin-bottom:8px;">學習統計</div>
+              <div style="color:#333;margin-bottom:6px;">已完成課程：<span id="profile-courses" style="color:#b75e14;font-weight:bold;">0</span></div>
+              <div style="color:#333;margin-bottom:6px;">累積學習時數：<span id="profile-hours" style="color:#b75e14;font-weight:bold;">0</span> 小時</div>
+              <div style="color:#333;margin-bottom:6px;">獲得徽章：<span id="profile-badges" style="color:#b75e14;font-weight:bold;">3</span></div>
+              <div style="color:#333;margin-bottom:6px;">互動表格正確率：<span id="profile-table-rate" style="color:#b75e14;font-weight:bold;">100%</span></div>
+            </div>
+            <!-- 社群/好友卡 -->
+            <div style="background:#e7eaff;border-radius:14px;box-shadow:0 2px 8px #8a9fd022;padding:24px 32px;min-width:260px;max-width:320px;">
+              <div style="font-size:1.1em;font-weight:bold;color:#4a5eb7;margin-bottom:8px;">社群/好友</div>
+              <div style="color:#333;margin-bottom:6px;">好友數：<span id="profile-friends" style="color:#b75e14;font-weight:bold;">0</span></div>
+              <div style="color:#333;margin-bottom:6px;">討論區發文：<span id="profile-posts" style="color:#b75e14;font-weight:bold;">0</span></div>
+              <div style="color:#333;margin-bottom:6px;">作品數：<span id="profile-works" style="color:#b75e14;font-weight:bold;">0</span></div>
+              <button style="background:#4a5eb7;color:#f5d1d1;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;margin-top:8px;">邀請好友</button>
+            </div>
+          </div>
+          <!-- 編輯個人資料彈窗（簡易版） -->
+          <div id="profile-edit-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0006;z-index:9999;align-items:center;justify-content:center;">
+            <div style="background:#fff;padding:32px 28px;border-radius:12px;box-shadow:0 2px 16px #0003;max-width:340px;margin:auto;">
+              <h3 style="color:#b75e14;text-align:center;margin-bottom:18px;">編輯個人資料</h3>
+              <div style="margin-bottom:10px;">Email: <input id="edit-email" style="width:70%;" /></div>
+              <div style="margin-bottom:10px;">學校/單位: <input id="edit-school" style="width:70%;" /></div>
+              <div style="margin-bottom:10px;">年級: <input id="edit-grade" style="width:70%;" /></div>
+              <div style="margin-bottom:10px;">興趣: <input id="edit-interest" style="width:70%;" /></div>
+              <div style="text-align:center;margin-top:18px;">
+                <button onclick="saveProfileEdit()" style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">儲存</button>
+                <button onclick="closeProfileEdit()" style="background:#eee;color:#b75e14;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;margin-left:10px;">取消</button>
+              </div>
+            </div>
+          </div>
         </div>
         <!-- 旅行頁面 -->
         <div id="page-adventure" style="display:none;">
@@ -223,26 +280,161 @@
           </div>
         </div>
         <!-- 任務頁面 -->
-        <div id="page-mission" style="display:none;">
-          <h2>任務</h2>
-          <p>這裡是任務內容。</p>
+        <div id="page-mission" style="display:none;max-width:900px;margin:0 auto;padding:32px 0;">
+          <div style="display:flex;align-items:center;gap:24px;margin-bottom:24px;">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#ffe5c2" stroke="#b75e14" stroke-width="3"/><path d="M24 10 L30 32 L18 32 Z" fill="#3498db"/><circle cx="24" cy="37" r="4" fill="#b75e14" stroke="#fff" stroke-width="1.5"/></svg>
+            <div>
+              <h2 style="margin:0 0 6px 0;font-size:2em;color:#b75e14;">今日任務中心</h2>
+              <div style="color:#666;font-size:1.1em;">歡迎回來，準備好挑戰新任務、解鎖成就，讓學習更有趣！</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
+            <!-- 左側：今日任務與進度 -->
+            <div>
+              <div style="background:#fffbe6;border-radius:12px;padding:20px 24px;margin-bottom:18px;box-shadow:0 2px 8px #b75e1422;">
+          <h3 style="margin-top:0;color:#b75e14;">今日任務</h3>
+          <ul style="padding-left:18px;margin:0 0 8px 0;font-size:1.08em;">
+            <li>完成「檔案類型」互動練習</li>
+            <li>參加小測驗並達 80 分以上</li>
+            <li>瀏覽 1 篇學習筆記</li>
+            <li>分享一個學習心得</li>
+          </ul>
+          <button style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:8px 22px;font-size:1em;cursor:pointer;box-shadow:0 1px 4px #b75e1422;">開始挑戰</button>
+              </div>
+              <div style="background:#f7f7fa;border-radius:12px;padding:18px 22px;box-shadow:0 2px 8px #b75e1422;">
+          <h3 style="margin-top:0;color:#198754;">學習進度追蹤</h3>
+          <div style="margin-bottom:8px;">本週已完成 <b>3/5</b> 任務</div>
+          <div style="background:#e7f7e7;border-radius:8px;height:18px;overflow:hidden;margin-bottom:8px;">
+            <div style="background:#198754;height:100%;width:60%;transition:width 0.5s;"></div>
+          </div>
+          <div style="font-size:0.98em;color:#888;">再完成 2 項任務即可獲得新徽章！</div>
+              </div>
+            </div>
+            <!-- 右側：徽章牆、排行榜、激勵語 -->
+            <div>
+              <div style="background:#fff;border-radius:12px;padding:18px 22px;margin-bottom:18px;box-shadow:0 2px 8px #b75e1422;">
+          <h3 style="margin-top:0;color:#b75e14;">徽章牆</h3>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#e7f7e7" stroke="#198754" stroke-width="3"/><rect x="16" y="16" width="16" height="16" rx="4" fill="#3498db"/><circle cx="24" cy="24" r="5" fill="#fff"/></svg>
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#f7e7e7" stroke="#e74c3c" stroke-width="3"/><polygon points="24,14 34,34 14,34" fill="#f1c40f"/><circle cx="24" cy="34" r="4" fill="#e74c3c"/></svg>
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:0.3;filter:grayscale(1);"><circle cx="24" cy="24" r="22" fill="#eee" stroke="#bbb" stroke-width="3"/><path d="M24 10 L30 32 L18 32 Z" fill="#bbb"/><circle cx="24" cy="37" r="4" fill="#bbb"/></svg>
+            <span style="color:#aaa;font-size:1.2em;">...更多</span>
+          </div>
+              </div>
+              <div style="background:#f7f7fa;border-radius:12px;padding:18px 22px;margin-bottom:18px;box-shadow:0 2px 8px #b75e1422;">
+          <h3 style="margin-top:0;color:#3498db;">排行榜</h3>
+          <ol style="margin:0 0 8px 18px;padding:0;font-size:1.05em;">
+            <li>小明 <span style="color:#b75e14;font-weight:bold;">★</span></li>
+            <li>小美</li>
+            <li>阿志</li>
+          </ol>
+          <div style="font-size:0.95em;color:#888;">努力學習，爭取上榜！</div>
+              </div>
+              <div style="background:#fffbe6;border-radius:12px;padding:16px 20px;box-shadow:0 2px 8px #b75e1422;">
+          <div style="font-size:1.1em;color:#b75e14;font-weight:bold;">「每一天的努力，都是未來的種子！」</div>
+          <button style="margin-top:10px;background:#3498db;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">打卡簽到</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 作品頁面 -->
+        <div id="page-work" style="display:none;">
+          <h2 style="text-align:center; color:#b75e14; letter-spacing:2px; margin-bottom:18px;">作品展示</h2>
+          <div class="works-wrapper" style="display:flex;gap:28px;overflow-x:auto;padding:18px 0 10px 0;">
+            <div class="card" style="flex:0 0 320px;box-shadow:0 4px 16px #b75e1422;border-radius:18px;text-align:center;background:linear-gradient(135deg,#fffbe6 60%,#ffe5c2 100%);transition:box-shadow 0.2s;">
+              <img src="images/works/work1.jpg" alt="作品1" style="width:92%;border-radius:12px;margin:18px 0 14px 0;box-shadow:0 2px 8px #b75e1422;">
+              <div style="font-size:1.18em;font-weight:bold;color:#b75e14;margin-bottom:6px;">作品一</div>
+              <div style="color:#666;font-size:0.98em;margin-bottom:12px;">展示學生的創意與成果。</div>
+              <button style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;box-shadow:0 1px 4px #b75e1422;">查看詳情</button>
+            </div>
+            <div class="card" style="flex:0 0 320px;box-shadow:0 4px 16px #b75e1422;border-radius:18px;text-align:center;background:linear-gradient(135deg,#fffbe6 60%,#ffe5c2 100%);transition:box-shadow 0.2s;">
+              <img src="images/works/work2.jpg" alt="作品2" style="width:92%;border-radius:12px;margin:18px 0 14px 0;box-shadow:0 2px 8px #b75e1422;">
+              <div style="font-size:1.18em;font-weight:bold;color:#b75e14;margin-bottom:6px;">作品二</div>
+              <div style="color:#666;font-size:0.98em;margin-bottom:12px;">展現不同主題的學習成果。</div>
+              <button style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;box-shadow:0 1px 4px #b75e1422;">查看詳情</button>
+            </div>
+            <div class="card" style="flex:0 0 320px;box-shadow:0 4px 16px #b75e1422;border-radius:18px;text-align:center;background:linear-gradient(135deg,#fffbe6 60%,#ffe5c2 100%);transition:box-shadow 0.2s;">
+              <img src="images/works/work3.jpg" alt="作品3" style="width:92%;border-radius:12px;margin:18px 0 14px 0;box-shadow:0 2px 8px #b75e1422;">
+              <div style="font-size:1.18em;font-weight:bold;color:#b75e14;margin-bottom:6px;">作品三</div>
+              <div style="color:#666;font-size:0.98em;margin-bottom:12px;">鼓勵創新與實踐。</div>
+              <button style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;box-shadow:0 1px 4px #b75e1422;">查看詳情</button>
+            </div>
+          </div>
         </div>
         <!-- 徽章頁面 -->
-        <div id="page-badge" style="display:none;">
-          <h2>徽章</h2>
-          <p>這裡是徽章內容。</p>
+        <div id="page-badge" style="display:none;max-width:900px;margin:0 auto;padding:32px 0;">
+          <div style="display:flex;align-items:center;gap:24px;margin-bottom:24px;">
+            <svg width="72" height="72" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="30" fill="#fffbe6" stroke="#3498db" stroke-width="4"/>
+              <path d="M32 12 L40 36 L24 36 Z" fill="#b75e14"/>
+              <circle cx="32" cy="44" r="6" fill="#3498db" stroke="#fff" stroke-width="2"/>
+            </svg>
+            <div>
+              <h2 style="margin:0 0 6px 0;font-size:2em;color:#3498db;">我的徽章收藏</h2>
+              <div style="color:#666;font-size:1.1em;">每一枚徽章，都是你努力的見證與榮耀！</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
+            <!-- 左側：徽章展示與分類 -->
+            <div>
+              <div style="background:#fffbe6;border-radius:12px;padding:20px 24px;margin-bottom:18px;box-shadow:0 2px 8px #b75e1422;">
+                <h3 style="margin-top:0;color:#b75e14;">徽章展示</h3>
+                <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;min-height:60px;">
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#ffe5c2" stroke="#b75e14" stroke-width="3"/><path d="M24 10 L30 32 L18 32 Z" fill="#3498db"/><circle cx="24" cy="37" r="4" fill="#b75e14" stroke="#fff" stroke-width="1.5"/></svg>
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#e7f7e7" stroke="#198754" stroke-width="3"/><rect x="16" y="16" width="16" height="16" rx="4" fill="#3498db"/><circle cx="24" cy="24" r="5" fill="#fff"/></svg>
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#f7e7e7" stroke="#e74c3c" stroke-width="3"/><polygon points="24,14 34,34 14,34" fill="#f1c40f"/><circle cx="24" cy="34" r="4" fill="#e74c3c"/></svg>
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:0.3;filter:grayscale(1);"><circle cx="24" cy="24" r="22" fill="#eee" stroke="#bbb" stroke-width="3"/><path d="M24 10 L30 32 L18 32 Z" fill="#bbb"/><circle cx="24" cy="37" r="4" fill="#bbb"/></svg>
+                  <span style="color:#aaa;font-size:1.2em;">...更多</span>
+                </div>
+                <div style="margin-top:12px;display:flex;gap:10px;">
+                  <button style="background:#3498db;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">全部</button>
+                  <button style="background:#fff;color:#3498db;border:1px solid #3498db;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">學習</button>
+                  <button style="background:#fff;color:#3498db;border:1px solid #3498db;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">任務</button>
+                  <button style="background:#fff;color:#3498db;border:1px solid #3498db;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">挑戰</button>
+                </div>
+              </div>
+              <div style="background:#f7f7fa;border-radius:12px;padding:18px 22px;box-shadow:0 2px 8px #b75e1422;">
+                <h3 style="margin-top:0;color:#198754;">成就進度</h3>
+                <div style="margin-bottom:8px;">已解鎖 <b>3/12</b> 枚徽章</div>
+                <div style="background:#e7f7e7;border-radius:8px;height:18px;overflow:hidden;margin-bottom:8px;">
+                  <div style="background:#198754;height:100%;width:25%;transition:width 0.5s;"></div>
+                </div>
+                <div style="font-size:0.98em;color:#888;">再獲得 1 枚徽章即可晉升「學習達人」！</div>
+              </div>
+            </div>
+            <!-- 右側：徽章故事與解鎖說明 -->
+            <div>
+              <div style="background:#fff;border-radius:12px;padding:18px 22px;margin-bottom:18px;box-shadow:0 2px 8px #b75e1422;">
+                <h3 style="margin-top:0;color:#b75e14;">徽章故事</h3>
+                <div style="font-size:1.08em;color:#444;">每一枚徽章背後都有一段故事。<br>點擊徽章可查看獲得條件與你的學習歷程紀錄。</div>
+                <ul style="margin:10px 0 0 18px;padding:0;color:#888;font-size:0.98em;">
+                  <li>檔案達人：完成檔案類型互動練習</li>
+                  <li>學習新星：首次登入平台</li>
+                  <li>任務高手：連續完成 5 天任務</li>
+                  <li>挑戰勇者：參加 3 次小測驗</li>
+                </ul>
+              </div>
+              <div style="background:#fffbe6;border-radius:12px;padding:16px 20px;box-shadow:0 2px 8px #b75e1422;">
+                <div style="font-size:1.1em;color:#b75e14;font-weight:bold;">「每一枚徽章，都是你努力的勳章！」</div>
+                <div style="margin-top:10px;font-size:0.98em;color:#888;">快去挑戰新任務，解鎖更多徽章吧！</div>
+                <div style="margin-top:10px;">
+                  <button style="background:#3498db;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">前往任務中心</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <!-- 其他頁面依此類推... -->
       </div>
     </div>
     <!-- 右側欄 -->
     <div class="rightbar">
-      <button class="unit-btn1">切換單元</button>
+      <button class="unit-btn1" onclick="window.location.href='blank.html'">切換單元</button>
       <div class="dark-frame" style="visibility:hidden; margin-left: 12px;"></div>
       <div class="section-title">社群</div>
       <div class="dark-frame" style="margin-left: 12px;"></div>
       <button class="group-btn disabled-btn">討論區</button>
-      <button class="nav-btn2">作品</button>
+      <button class="nav-btn2" onclick="showPage('page-work')">作品</button>
       <button class="group-btn disabled-btn">好友</button>
       <button class="group-btn disabled-btn">排行榜</button>
       <button class="nav-btn2" onclick="openAIWebchat()">AI學伴</button>
@@ -330,14 +522,14 @@
         // 若目前在課程頁，刷新進度
         updateLessonProgressUI();
         // 新增：刷新學習紀錄卡片
-        renderLearningRecords();
+        renderLearningRecords(data);
       } catch (e) {
         setSyncStatus("同步失敗", "#c00");
       }
     }
 
     // 學習紀錄卡片渲染
-    function renderLearningRecords() {
+    function renderLearningRecords(data) {
       const recordsPage = document.getElementById('page-records');
       if (!recordsPage) return;
       let html = '<h2 style="text-align:center;">學習紀錄</h2>';
@@ -350,10 +542,10 @@
         const percent = Math.round(((unitIdx + 1) / total) * 100);
         const unitTitle = lesson.units[unitIdx]?.title || '';
         html += `
-          <div class="record-card" style="background:#fffbe6;border:1px solid #e0c08a;border-radius:10px;padding:18px 22px;min-width:220px;max-width:320px;box-shadow:0 2px 8px #0001;">
+          <div class="record-card" style="background:#fffbe6;border:1px solid #e0c08a;border-radius:10px;padding:18px 22px;min-width:220px;max-width:320px;box-shadow:0 2px 8px #0001; padding:8px">
             <div style="font-size:1.1em;font-weight:bold;color:#b75e14;margin-bottom:6px;">${lesson.title}</div>
             <div style="color:#333;margin-bottom:4px;">目前單元：<span style="color:#2a8a2a;">${unitTitle}</span></div>
-            <div style="color:#888;margin-bottom:8px;">進度：<span style="color:#b75e14;font-weight:bold;">${percent}%</span></div>
+            <div style="color:#888;margin-bottom:4px;">進度：<span style="color:#b75e14;font-weight:bold;">${percent}%</span></div>
             <div style="height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-bottom:2px;">
               <div style="height:100%;width:${percent}%;background:#b75e14;"></div>
             </div>
@@ -363,6 +555,29 @@
       }
       html += '</div>';
       if (!hasRecord) html += '<div style="color:#888;margin-top:16px;">尚無學習紀錄</div>';
+
+      // 顯示互動表格作答紀錄
+      if (typeof data !== "undefined" && data.records && data.records.length > 0) {
+        const lastResult = data.records[0].fields.lastTableResult;
+        if (lastResult) {
+          try {
+            const obj = JSON.parse(lastResult);
+            html += `
+              <div class="record-card" style=" background:#e7f7e7;border:1px solid #8ad08a;border-radius:10px;padding:18px 22px;min-width:220px;max-width:320px;width:100%;box-sizing:border-box;box-shadow:0 2px 8px #0001;">
+                <div style="font-size:1.1em;font-weight:bold;color:#2a8a2a;margin-bottom:6px;">互動表格作答紀錄</div>
+                <div style="color:#333;margin-bottom:4px;">滑鼠：${obj.mouse || ""}</div>
+                <div style="color:#333;margin-bottom:4px;">鍵盤：${obj.keyboard || ""}</div>
+                <div style="color:#333;margin-bottom:4px;">螢幕：${obj.screen || ""}</div>
+                <div style="color:#333;margin-bottom:4px;">喇叭：${obj.speaker || ""}</div>
+                <div style="color:#333;margin-bottom:4px;">輸入設備：${obj.input || ""}</div>
+                <div style="color:#333;margin-bottom:4px;">輸出設備：${obj.output || ""}</div>
+                <div style="color:#888;margin-bottom:4px;">結果：<span style="color:${obj.correct ? '#2a8a2a' : '#c00'};font-weight:bold;">${obj.correct ? '正確' : '錯誤'}</span></div>
+                <div style="color:#888;font-size:0.95em;">時間：${obj.time ? new Date(obj.time).toLocaleString() : ''}</div>
+              </div>
+            `;
+          } catch (e) {}
+        }
+      }
       recordsPage.innerHTML = html;
     }
 
@@ -424,9 +639,16 @@
               </div>
             `
           },
-          { title: '單元二：桌面操作', content: '學習如何操作桌面、開啟程式、管理視窗。' },
-          { title: '單元三：輸入輸出設備', content: '認識各種輸入與輸出設備，例如滑鼠、鍵盤、印表機、螢幕等。' },
-          { title: '單元四：檔案類型', content: '了解常見的檔案類型與副檔名，如何辨識與管理。' },
+          { title: '單元二：桌面操作', content: `
+            <div id="desktop-demo-frame" style="margin: 8px 0;">
+              <div style="border:2px solid #b75e14; border-radius:12px; padding:8px; background:#fff;">
+                <div id="multitasking-demo-container"></div>
+                <div style="margin-top:8px; font-size:0.95em; color:#888;">提示：點擊下方任務欄的應用程式，體驗多工視窗的開啟與拖曳。</div>
+              </div>
+            </div>
+          ` },
+          { title: '單元三：檔案類型', content: '了解常見的檔案類型與副檔名，如何辨識與管理。' },
+          { title: '單元四：尚未設計', content: '' },
           { title: '單元五：多工處理', content: '介紹多工處理的基本概念與在作業系統中的應用。' },
           { title: '單元六：資料傳輸速度', content: '說明資料傳輸速度的單位與影響因素。' },
           { title: '單元七：電腦安全', content: '基礎電腦安全知識與防護措施。' },
@@ -455,7 +677,7 @@
     };
 
     function showPage(pageId, lessonId) {
-      const pages = [ 'page-notes', 'page-courses', 'page-records', 'page-lesson', 'page-profile', 'page-adventure', 'page-mission', 'page-badge'];
+      const pages = [ 'page-notes', 'page-courses', 'page-records', 'page-lesson', 'page-profile', 'page-adventure', 'page-mission','page-work', 'page-badge'];
       pages.forEach(id => {
         document.getElementById(id).style.display = (id === pageId) ? '' : 'none';
       });
@@ -481,10 +703,16 @@
     function showUnit(lessonId, unitIdx) {
       const unit = lessons[lessonId].units[unitIdx];
       document.getElementById('unit-title').textContent = unit.title;
-      // 判斷是否為"單元一：電腦的組成"
       if (unit.title.indexOf('電腦的組成') !== -1) {
         document.getElementById('unit-content').innerHTML = unit.content;
-        showSubUnit(0); // 預設顯示第一個子單元
+        showSubUnit(0);
+      } else if (unit.title.indexOf('桌面操作') !== -1) {
+        document.getElementById('unit-content').innerHTML = unit.content;
+        renderMultitaskingDemo();
+        renderDialogueSystemForUnit2();
+      } else if (unit.title.indexOf('檔案類型') !== -1) {
+        document.getElementById('unit-content').innerHTML = '<div id="filetype-explorer-container"></div>';
+        renderFileTypeExplorer();
       } else if (unit.title.indexOf('互動表格') !== -1) {
         document.getElementById('unit-content').innerHTML = unit.content;
         renderInteractiveTableV2();
@@ -508,7 +736,6 @@
           <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div>
           <div id="dialogue-choices" style="display:flex;gap:12px;"></div>
         </div>
-        主機：電腦的核心部件，負責資料處理與運算。
       </div>`,
       // 螢幕
       `<div>
@@ -516,7 +743,6 @@
           <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div>
           <div id="dialogue-choices" style="display:flex;gap:12px;"></div>
         </div>
-        螢幕：顯示電腦輸出的資訊，屬於輸出設備。
       </div>`,
       // 鍵盤
       `<div>
@@ -524,7 +750,6 @@
           <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div>
           <div id="dialogue-choices" style="display:flex;gap:12px;"></div>
         </div>
-        鍵盤：常見的輸入設備，用於輸入文字與指令。
       </div>`,
       // 滑鼠
       `<div>
@@ -532,7 +757,6 @@
           <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div>
           <div id="dialogue-choices" style="display:flex;gap:12px;"></div>
         </div>
-        滑鼠：常見的輸入設備，用於控制游標與操作介面。
       </div>`,
       // 互動表格
       `<div id="interactive-table-frame" style='margin: 4px 0;'>
@@ -561,106 +785,274 @@
       // 對話引導
       renderDialogueSystemForSubunit(idx);
       if (idx === 4) renderInteractiveTableV2();
+
+      // 新增：根據子單元進度更新進度條
+      // 只在課堂頁、單元一時生效
+      const lessonTitle = document.getElementById('lesson-title').textContent;
+      let lessonId = '';
+      for (const k in lessons) if (lessons[k].title === lessonTitle) lessonId = k;
+      if (lessonId && lessons[lessonId].units[0].title.indexOf('電腦的組成') !== -1) {
+        // 單元一有5個子單元
+        const percent = Math.round(((idx + 1) / 5) * 100);
+        document.getElementById('lesson-progress').textContent = percent + '%';
+      }
     }
 
     // 對話選擇系統 for 單元一子單元
     function renderDialogueSystemForSubunit(idx) {
-      const dialogueSets = [
+      const dialogueSets = [  
         // 主機
         [
           {
-            text: "歡迎進入電腦的組成介紹。你知道主機的主要功能是什麼嗎？",
+            text: "歡迎來到電腦基礎課程！現在我們將一同認識電腦的組成與其功能。<br>在日常生活中，我們經常使用電腦完成各種任務，例如撰寫文件、觀看影片、處理照片，甚至進行線上學習與遠端會議。然而，當你打開一台電腦時，你是否曾好奇過這台機器是如何運作的？又是哪些部件在背後默默地協助我們完成各種操作？",
             choices: [
-              { text: "資料處理與運算", next: 1 },
-              { text: "顯示畫面", next: 2 }
+              { text: "我想直接前往下個單元", action: () => showSubUnit(1) },
+              { text: "我想了解主機的組成", next: 1 }
             ]
           },
           {
-            text: "答對了！主機負責資料處理與運算。下一步，來看看螢幕。",
+            text: "首先，讓我們聚焦在電腦的「主機」（有時也稱為主機殼、電腦本體）。<br>主機內部就像是一個小型的工廠，每一個零件都各司其職，彼此協作，讓整台電腦順利運作。那麼，你知道主機的主要功能是什麼嗎？",
             choices: [
-              { text: "前往螢幕", action: () => showSubUnit(1) }
+              { text: "處理與儲存資料、執行程式、控制其他設備", next: 2 },
+              { text: "只是裝飾用的外殼", next: 3 }
             ]
           },
           {
-            text: "主機主要負責資料處理與運算，顯示畫面是螢幕的功能喔！",
+            text: "正確！主機的核心任務，是處理與儲存資料、執行程式、以及控制其他設備的運作。<br>它包含了數個關鍵的硬體組件：中央處理器（CPU）、記憶體（RAM）、儲存裝置（硬碟、SSD）、主機板、電源供應器、顯示卡等。想進一步了解這些組件嗎？",
             choices: [
-              { text: "再試一次", next: 0 }
+              { text: "想！請介紹各組件", next: 4 },
+              { text: "不用了，直接進入下個單元", action: () => showSubUnit(1) }
+            ]
+          },
+          {
+            text: "其實主機不是裝飾用的外殼，而是電腦運作的核心。主機內部包含許多重要的硬體組件。<br>想知道有哪些組件嗎？",
+            choices: [
+              { text: "想！請介紹各組件", next: 4 },
+              { text: "不用了，直接進入下個單元", action: () => showSubUnit(1) }
+            ]
+          },
+          {
+            text: "中央處理器（CPU）：被稱為電腦的大腦，負責進行各種運算與邏輯判斷。<br>當你開啟一個應用程式或進行輸入操作時，CPU 會迅速解讀並執行這些指令。",
+            choices: [
+              { text: "下一個組件", next: 5 }
+            ]
+          },
+          {
+            text: "記憶體（RAM）：是 CPU 暫時存取資料的空間，就像是你在辦公桌上放置的工作資料。<br>記憶體越大，你同時能運行的程式也就越多、越順暢。",
+            choices: [
+              { text: "下一個組件", next: 6 }
+            ]
+          },
+          {
+            text: "儲存裝置（硬碟、SSD）：負責長期儲存檔案、系統與應用程式。<br>傳統硬碟（HDD）與固態硬碟（SSD）在讀寫速度上有很大的差異，也影響著整體效能。",
+            choices: [
+              { text: "下一個組件", next: 7 }
+            ]
+          },
+          {
+            text: "主機板（Motherboard）：所有硬體的連接中心。<br>它就像城市中的道路系統，讓電力與資料在各零件間順利流通。",
+            choices: [
+              { text: "下一個組件", next: 8 }
+            ]
+          },
+          {
+            text: "電源供應器（Power Supply）：將插座供應的電力轉換成電腦所需的各種電壓，並穩定供應給所有硬體。",
+            choices: [
+              { text: "下一個組件", next: 9 }
+            ]
+          },
+          {
+            text: "顯示卡（GPU）：負責圖像處理與輸出，對於觀看影片、玩遊戲、或進行繪圖與剪輯工作非常重要。",
+            choices: [
+              { text: "全部看完了，進入下個單元", action: () => showSubUnit(1) }
+            ]
+          },
+          {
+            text: "當我們熟悉這些基礎組件後，就能更了解電腦如何接收我們的指令，如何思考、如何運作，甚至在故障時可以更快判斷問題所在。",
+            choices: [
+              { text: "進入下個單元", action: () => showSubUnit(1) }
             ]
           }
         ],
+        
         // 螢幕
         [
           {
-            text: "螢幕屬於哪一類設備？",
+            text: "電腦與使用者互動時，會透過『輸入設備』接收資料，並用『輸出設備』回應結果。你知道，螢幕這個用來顯示資訊的裝置，屬於哪一類設備嗎？",
             choices: [
               { text: "輸入設備", next: 2 },
               { text: "輸出設備", next: 1 }
             ]
           },
           {
-            text: "正確！螢幕是輸出設備。接下來認識鍵盤。",
+            text: "正確！螢幕是輸出設備，負責將電腦處理後的資訊以畫面方式呈現給使用者。你想了解哪些現代螢幕的特色？",
             choices: [
+              { text: "畫質與解析度", next: 3 },
+              { text: "觸控與互動功能", next: 4 },
+              { text: "護眼與健康設計", next: 5 },
               { text: "前往鍵盤", action: () => showSubUnit(2) }
             ]
           },
           {
-            text: "螢幕是輸出設備，負責顯示資訊。",
+            text: "螢幕其實是輸出設備，負責顯示資訊。再想想看！",
             choices: [
               { text: "再試一次", next: 0 }
+            ]
+          },
+          {
+            text: "現代螢幕通常支援高解析度，例如 Full HD（1920x1080）、2K（2560x1440）、甚至 4K（3840x2160）或更高等級的影像輸出。這使得畫面更加細膩、色彩更加鮮明，不論是觀看高畫質影片、處理影像設計，還是進行遊戲娛樂，都能提供更沉浸、更真實的視覺體驗。",
+            choices: [
+              { text: "觸控與互動功能", next: 4 },
+              { text: "護眼與健康設計", next: 5 },
+              { text: "前往鍵盤", action: () => showSubUnit(2) }
+            ]
+          },
+          {
+            text: "許多螢幕具備觸控功能，讓使用者可以直接透過手指或觸控筆進行點選、滑動、縮放等操作，這對於簡報、繪圖、教育學習甚至一般使用者來說，都大大提升了互動性與操作的直覺性。這類螢幕特別常見於平板電腦、二合一筆電，以及某些高階商務顯示器上。",
+            choices: [
+              { text: "畫質與解析度", next: 4 },
+              { text: "護眼與健康設計", next: 5 },
+              { text: "前往鍵盤", action: () => showSubUnit(2) }
+            ]
+          },
+          {
+            text: "許多產品內建了護眼模式或低藍光功能，透過調整顯示色溫、降低藍光波長輸出，來減少長時間使用螢幕所造成的視覺疲勞與潛在的眼睛傷害。某些高階螢幕甚至支援無閃爍技術（Flicker-Free），進一步減輕眼睛在觀看時的不適感。",
+            choices: [
+              { text: "畫質與解析度", next: 4 },
+              { text: "觸控與互動功能", next: 5 },
+              { text: "前往鍵盤", action: () => showSubUnit(2) }
             ]
           }
         ],
         // 鍵盤
         [
           {
-            text: "鍵盤的主要用途是？",
+            text: "鍵盤是我們與電腦溝通與操作的核心工具之一，屬於最常見也最基本的輸入裝置。你想了解鍵盤的哪些主題？",
             choices: [
-              { text: "輸入文字與指令", next: 1 },
-              { text: "播放音樂", next: 2 }
-            ]
-          },
-          {
-            text: "答對了！鍵盤是常見的輸入設備。接下來看看滑鼠。",
-            choices: [
+              { text: "主要用途", next: 1 },
+              { text: "快捷鍵與功能鍵", next: 2 },
+              { text: "控制區塊", next: 3 },
+              { text: "現代鍵盤特色", next: 4 },
               { text: "前往滑鼠", action: () => showSubUnit(3) }
             ]
           },
+          // 主要用途
           {
-            text: "鍵盤主要用於輸入文字與指令，播放音樂是其他設備的功能。",
+            text: "鍵盤的最直觀用途是輸入文字與資料。不論撰寫報告、電子郵件，鍵盤都提供快速且精確的輸入方式。每個按鍵對應特定符號、字母或功能，透過指尖敲擊，訊號即被傳送給電腦處理。",
             choices: [
-              { text: "再試一次", next: 0 }
+              { text: "快捷鍵與功能鍵", next: 2 },
+              { text: "控制區塊", next: 3 },
+              { text: "現代鍵盤特色", next: 4 },
+              { text: "前往滑鼠", action: () => showSubUnit(3) }
+            ]
+          },
+          // 快捷鍵與功能鍵
+          {
+            text: "鍵盤包含許多功能鍵與快捷鍵組合，可快速執行常見動作。例如：\n\nCtrl + C 複製、Ctrl + V 貼上\nAlt + Tab 切換視窗\nF2 重新命名檔案、F5 重新整理頁面\n這些組合鍵能大幅提升操作效率，讓使用者更流暢地進行各種任務。",
+            choices: [
+              { text: "主要用途", next: 1 },
+              { text: "控制區塊", next: 3 },
+              { text: "現代鍵盤特色", next: 4 },
+              { text: "前往滑鼠", action: () => showSubUnit(3) }
+            ]
+          },
+          // 控制區塊
+          {
+            text: "鍵盤有一區稱為功能區與控制鍵區塊，例如方向鍵、刪除鍵（Delete）、插入鍵（Insert）、頁面捲動鍵（Page Up/Page Down）等，這些都是用來輔助在檔案、文件或網頁中的移動與編輯。",
+            choices: [
+              { text: "主要用途", next: 1 },
+              { text: "快捷鍵與功能鍵", next: 2 },
+              { text: "現代鍵盤特色", next: 4 },
+              { text: "前往滑鼠", action: () => showSubUnit(3) }
+            ]
+          },
+          // 現代鍵盤特色
+          {
+            text: "現代鍵盤還可能整合更多功能，例如：<br>多媒體控制鍵：控制音量、播放、暫停等。<br>自定義巨集鍵：可自訂一連串操作流程。<br>人體工學設計：減少長時間打字造成的手腕與手臂疲勞。<br>背光鍵盤：方便在昏暗環境下輸入，並兼具美觀。",
+            choices: [
+              { text: "主要用途", next: 1 },
+              { text: "快捷鍵與功能鍵", next: 2 },
+              { text: "控制區塊", next: 3 },
+              { text: "前往滑鼠", action: () => showSubUnit(3) }
             ]
           }
         ],
+        
         // 滑鼠
         [
           {
-            text: "滑鼠屬於哪一類設備？",
+            text: "滑鼠是電腦常見的指標裝置，你知道滑鼠屬於哪一類設備嗎？",
             choices: [
               { text: "輸入設備", next: 1 },
               { text: "輸出設備", next: 2 }
             ]
           },
           {
-            text: "正確！滑鼠是輸入設備。最後來挑戰互動表格吧！",
+            text: "正確！滑鼠是輸入設備，讓我們能夠移動游標、點擊、拖曳、滾動，方便操作電腦介面。你想深入了解現代滑鼠的哪些特色？",
             choices: [
-              { text: "前往互動表格", action: () => showSubUnit(4) }
+              { text: "滾輪功能", next: 3 },
+              { text: "多鍵與自定義按鍵", next: 4 },
+              { text: "手勢與感應控制", next: 5 },
+              { text: "無線與連線方式", next: 6 },
+              { text: "前往小測驗", action: () => showSubUnit(4) }
             ]
           },
           {
-            text: "滑鼠是輸入設備，請再試一次！",
+            text: "滑鼠其實是輸入設備，負責將你的動作傳給電腦。再想想看！",
             choices: [
               { text: "再試一次", next: 0 }
             ]
+          },
+          // 滾輪功能
+          {
+            text: "現代滑鼠多數都配備了滾輪（Scroll Wheel）。滾輪的加入大幅簡化了頁面捲動、文件瀏覽與地圖縮放等操作，使用者只需輕輕轉動即可快速上下滑動，而不必依賴捲動條或鍵盤指令。部分高階滑鼠甚至配有可切換模式的滾輪，支援精細滾動與高速連續滾動，進一步提升效率。",
+            choices: [
+              { text: "多鍵與自定義按鍵", next: 4 },
+              { text: "手勢與感應控制", next: 5 },
+              { text: "無線與連線方式", next: 6 },
+              { text: "前往小測驗", action: () => showSubUnit(4) }
+            ]
+          },
+          // 多鍵與自定義按鍵
+          {
+            text: "許多滑鼠加入了多顆自定義按鍵，這些按鍵可依個人需求設定為特定功能，例如返回上一頁、開啟任務視窗、複製貼上，甚至是執行巨集命令。對於遊戲玩家、設計師、剪輯師或工程師來說，多鍵滑鼠可以大幅減少手部操作次數，提升操作效率與反應速度。",
+            choices: [
+              { text: "滾輪功能", next: 3 },
+              { text: "手勢與感應控制", next: 5 },
+              { text: "無線與連線方式", next: 6 },
+              { text: "前往小測驗", action: () => showSubUnit(4) }
+            ]
+          },
+          // 手勢與感應控制
+          {
+            text: "部分高階滑鼠或觸控板整合了觸控手勢技術，允許使用者透過滑動、點擊、滑撥等動作進行切換視窗、放大縮小、捲動等操作，這類功能特別常見於筆記型電腦的觸控板與 Apple 的 Magic Mouse 上。",
+            choices: [
+              { text: "滾輪功能", next: 3 },
+              { text: "多鍵與自定義按鍵", next: 4 },
+              { text: "無線與連線方式", next: 6 },
+              { text: "前往小測驗", action: () => showSubUnit(4) }
+            ]
+          },
+          // 無線與連線方式
+          {
+            text: "現代滑鼠也支援無線傳輸技術，常見的如藍牙與 2.4GHz 無線接收器，擺脫傳統有線滑鼠的線材限制，讓桌面更整潔、操作更自由。有些產品還提供可充電電池或長效省電設計，兼顧環保與便利性。",
+            choices: [
+              { text: "滾輪功能", next: 3 },
+              { text: "多鍵與自定義按鍵", next: 4 },
+              { text: "手勢與感應控制", next: 5 },
+              { text: "前往小測驗", action: () => showSubUnit(4) }
+            ]
           }
-        ]
+          ],
       ];
 
       const dialogue = dialogueSets[idx];
       if (!dialogue) {
-        // 沒有對話內容時，將 dialogue-system 的 margin-bottom 設為 0
+        // 沒有對話內容時，將 dialogue-system 的 margin-bottom 設為 0，並將 dialogue-text 的 border-left 設為 0
         const sys = document.getElementById('dialogue-system');
         if (sys) sys.style.marginBottom = '0';
+        const textDiv = document.getElementById('dialogue-text');
+        if (textDiv) textDiv.style.borderLeft = '0';
         return;
       }
       const textDiv = document.getElementById('dialogue-text');
@@ -669,7 +1061,12 @@
 
       function renderDialogue(idx) {
         const node = dialogue[idx];
-        textDiv.textContent = node.text;
+        // 新增：如果有 img 屬性，顯示圖片
+        if (node.img) {
+          textDiv.innerHTML = `<img src="${node.img}" alt="" style="max-width:80px;max-height:80px;display:block;margin:0 auto 10px auto;">` + node.text.replace(/\n/g, "<br>");
+        } else {
+          textDiv.innerHTML = node.text.replace(/\n/g, "<br>");
+        }
         choicesDiv.innerHTML = '';
         node.choices.forEach(choice => {
           const btn = document.createElement('button');
@@ -687,6 +1084,72 @@
       }
       renderDialogue(dialogueIdx);
     }
+
+    // 對話選擇系統 for 單元二：桌面操作
+    function renderDialogueSystemForUnit2() {
+      const dialogue = [
+        
+        {
+          text: `現代作業系統普遍支援 <strong>桌面多工操作</strong>（Multitasking on Desktop），這項功能大幅提升了電腦的使用效率與彈性。<br><br>所謂多工操作，指的是在同一時間內，使用者可以同時執行並切換多個應用程式或工作項目，不必每完成一項任務就關閉視窗或程式，讓整體操作流程更加流暢、靈活。<br><br><strong>什麼是桌面多工操作？</strong><br>桌面多工操作包含以下幾種常見形式：<br><br>你想逐步了解這些多工技巧嗎？`,
+          choices: [
+            { text: "想了解每一種多工技巧！", next: 1 },
+            { text: "我會了，直接體驗模擬！", action: () => { renderMultitaskingDemo(); } }
+          ]
+        },
+        {
+          text: `<strong>1. 視窗分割與排列</strong><br>現代作業系統（如 Windows、macOS、Linux 等）都支援將多個視窗並排顯示或自動調整大小的功能。<br><br>舉例來說：<ul style='margin:8px 0 8px 18px;'><li>在 <strong>Windows</strong> 中，可拖曳視窗到螢幕邊緣讓它自動佔據一半畫面（Snap Layout），適合一邊參考資料、一邊編輯文件。</li><li><strong>macOS</strong> 提供 Split View 模式，可將兩個程式橫向分割顯示，避免視窗重疊干擾。</li></ul>這些功能讓你能同時處理多個任務，提升效率。<br><br>要繼續了解下一種多工技巧嗎？`,
+          choices: [
+            { text: "多虛擬桌面是什麼？", next: 2 },
+            { text: "直接體驗模擬！", action: () => { renderMultitaskingDemo(); } }
+          ]
+        },
+        {
+          text: `<strong>2. 多虛擬桌面（Virtual Desktops）</strong><br>虛擬桌面允許使用者建立多個桌面環境，各自運行不同的應用程式組合。例如：<ul style='margin:8px 0 8px 18px;'><li>第一個桌面用於瀏覽網頁與查資料</li><li>第二個桌面開啟簡報與文書工具</li><li>第三個桌面執行影片播放或設計軟體</li></ul>透過滑動手勢或快捷鍵快速切換，能有效分類工作與避免畫面雜亂。<br><br>要繼續了解下一種多工技巧嗎？`,
+          choices: [
+            { text: "任務切換與背景執行", next: 3 },
+            { text: "直接體驗模擬！", action: () => { renderMultitaskingDemo(); } }
+          ]
+        },
+        {
+          text: `<strong>3. 任務切換與背景執行</strong><br>使用者可以透過快捷鍵（如 <strong>Alt + Tab</strong>、<strong>Windows + Tab</strong>）快速在不同視窗與應用程式間切換，保持工作節奏不中斷。同時，系統也會允許一些程式在背景中運作，例如：<ul style='margin:8px 0 8px 18px;'><li>音樂播放</li><li>檔案下載</li><li>系統更新</li></ul>這些背景任務不會干擾你目前的操作。<br><br>還有一項多工相關的便利功能要介紹：`,
+          choices: [
+            { text: "通知與小工具整合", next: 4 },
+            { text: "直接體驗模擬！", action: () => { renderMultitaskingDemo(); } }
+          ]
+        },
+        {
+          text: `<strong>4. 通知與小工具整合</strong><br>多工操作也依賴系統層面的通知中心與工作列整合，讓使用者即使不主動開啟視窗，也能即時掌握來信、訊息、行事曆提醒等資訊，提升決策與反應速度。<br><br>你已經了解桌面多工操作的主要形式，現在可以動手體驗模擬囉！`,
+          choices: [
+            { text: "開始體驗桌面多工模擬", action: () => { renderMultitaskingDemo(); } }
+          ]
+        }
+      ];
+      const container = document.getElementById('multitasking-demo-container');
+      if (!container) return;
+      container.innerHTML = '<div id="unit2-dialogue-system" style="margin-bottom:12px;"><div id="unit2-dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div><div id="unit2-dialogue-choices" style="display:flex;gap:12px;"></div></div>';
+      const textDiv = document.getElementById('unit2-dialogue-text');
+      const choicesDiv = document.getElementById('unit2-dialogue-choices');
+      let idx = 0;
+      function render(idx) {
+        textDiv.innerHTML = dialogue[idx].text;
+        choicesDiv.innerHTML = '';
+        dialogue[idx].choices.forEach(choice => {
+          const btn = document.createElement('button');
+          btn.textContent = choice.text;
+          btn.className = 'subunit-btn';
+          btn.onclick = () => {
+            if (typeof choice.action === 'function') {
+              choice.action();
+            } else if (typeof choice.next === 'number') {
+              render(choice.next);
+            }
+          };
+          choicesDiv.appendChild(btn);
+        });
+      }
+      render(idx);
+    }
+    
     // 新版互動式表格JS
     function renderInteractiveTableV2() {
       const container = document.getElementById('drag-table-container');
@@ -726,6 +1189,10 @@
             <div class="draggable-cell" draggable="true" data-type="output" style="border:1px solid #888;padding:6px 8px;border-radius:8px;cursor:grab;background:#f7f7f7;min-width:40px;text-align:center;">輸出設備</div>
             </div>
           </div>
+          <div style="margin-top:16px; display:flex; gap:12px;">
+            <button id="reset-table-btn" class="subunit-btn" style="background:#eee;color:#b75e14;">重設</button>
+            <button id="submit-table-btn" class="subunit-btn" style="background:#b75e14;color:#fff;">確認</button>
+          </div>
         </div>
       `;
 
@@ -758,8 +1225,10 @@
             if(frame.id == "frame-input" || frame.id == "frame-output") {
               frame.innerHTML += html;
             } else {
-              // 僅允許一個cell
-              frame.innerHTML = html;
+                // 最多允許兩個cell，若已達兩個則不再加入
+                if ((frame.querySelectorAll('.draggable-cell').length || 0) < 2) {
+                  frame.innerHTML += html;
+                }
             }
             
             // 重新掛載拖拉事件
@@ -777,36 +1246,55 @@
         });
       });
 
-      // 讓整個表格框可移動
-      const tableFrame = document.getElementById('table-frame-move');
-      let isDragging = false,
-        startX = 0,
-        startY = 0,
-        origX = 0,
-        origY = 0;
-      tableFrame.addEventListener('mousedown', function (e) {
-        if (e.target !== tableFrame) return;
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        const rect = tableFrame.getBoundingClientRect();
-        origX = rect.left;
-        origY = rect.top;
-        tableFrame.style.position = 'fixed';
-        tableFrame.style.zIndex = 99;
-        document.body.style.userSelect = 'none';
-      });
-      document.addEventListener('mousemove', function (e) {
-        if (!isDragging) return;
-        tableFrame.style.left = (origX + e.clientX - startX) + 'px';
-        tableFrame.style.top = (origY + e.clientY - startY) + 'px';
-      });
-      document.addEventListener('mouseup', function () {
-        if (isDragging) {
-          isDragging = false;
-          document.body.style.userSelect = '';
-        }
-      });
+      // Reset 按鈕事件
+      const resetBtn = document.getElementById('reset-table-btn');
+      if (resetBtn) {
+        resetBtn.onclick = () => {
+          renderInteractiveTableV2();
+        };
+      }
+
+      // Submit/確認 按鈕事件
+      const submitBtn = document.getElementById('submit-table-btn');
+      if (submitBtn) {
+        submitBtn.onclick = async () => {
+          // 驗證答案
+          const mouse = document.getElementById('frame-mouse').textContent.includes('輸入設備');
+          const keyboard = document.getElementById('frame-keyboard').textContent.includes('輸入設備');
+          const screen = document.getElementById('frame-screen').textContent.includes('輸出設備');
+          const speaker = document.getElementById('frame-speaker').textContent.includes('輸出設備');
+          const input = document.getElementById('frame-input').textContent.includes('滑鼠') && document.getElementById('frame-input').textContent.includes('鍵盤');
+          const output = document.getElementById('frame-output').textContent.includes('螢幕') && document.getElementById('frame-output').textContent.includes('喇叭');
+          let result = mouse && keyboard && screen && speaker && input && output;
+          let msg = result ? '恭喜，全部正確！' : '有些答案不正確，請再檢查。';
+          alert(msg);
+          // 儲存到 Airtable
+          if (currentUsername && userRecordId) {
+            const answerObj = {
+              mouse: document.getElementById('frame-mouse').textContent,
+              keyboard: document.getElementById('frame-keyboard').textContent,
+              screen: document.getElementById('frame-screen').textContent,
+              speaker: document.getElementById('frame-speaker').textContent,
+              input: document.getElementById('frame-input').textContent,
+              output: document.getElementById('frame-output').textContent,
+              correct: result,
+              time: new Date().toISOString()
+            };
+            try {
+              await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}/${userRecordId}`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ fields: { lastTableResult: JSON.stringify(answerObj) } })
+              });
+            } catch (e) {
+              // 可選：顯示同步失敗訊息
+            }
+          }
+        };
+      }
     }
 
     function openAIWebchat() {
@@ -818,6 +1306,17 @@
         // 僅在 webchat ready 時開啟
         if (window.botpress && typeof window.botpress.open === 'function') {
           window.botpress.open();
+          // 新增：傳送 username 和 progress 給 Botpress
+          if (typeof window.botpress.sendEvent === 'function') {
+            window.botpress.sendEvent({
+              type: 'custom',
+              channel: 'web',
+              payload: {
+                username: currentUsername,
+                progress: userProgress
+              }
+            });
+          }
         }
         webchatDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else {
@@ -828,12 +1327,13 @@
         }
       }
     }
-  </script>
-  <!-- Botpress 初始化腳本移到這裡 -->
-  <script>
+
+   // <!-- Botpress 初始化腳本移到這裡 -->
+
     window.botpress.on("webchat:ready", () => {
       window.botpress.open();
     });
+
     window.botpress.init({
       "botId": "8db1604b-6b48-4919-9a5c-4b3eb23948a4",
       "configuration": {
@@ -853,7 +1353,368 @@
         "additionalStylesheetUrl": "https://files.bpcontent.cloud/2025/05/20/06/20250520062811-KX8CLOG6.css"
       },
       "clientId": "51db9fc7-e92e-41f3-a0e2-d4105907deab",
-      "selector": "#webchat"
+      "selector": "#webchat",
+      "user": {
+        "data": {
+            "username": currentUsername,
+            "progress": userProgress
+        }
+      }
+    });
+    window.botpress.updateuser({
+      "username": currentUsername,
+      "progress": userProgress
+    });
+
+    // 桌面多工操作模擬
+    function renderMultitaskingDemo() {
+      const container = document.getElementById('multitasking-demo-container');
+      if (!container) return;
+      container.innerHTML = '';
+      // 建立桌面區域
+      const multitaskingContainer = document.createElement('div');
+      multitaskingContainer.className = 'multitasking-container';
+      multitaskingContainer.style.position = 'relative';
+      multitaskingContainer.style.width = '100%';
+      multitaskingContainer.style.maxWidth = '520px';
+      multitaskingContainer.style.height = '260px';
+      multitaskingContainer.style.background = '#f8f9fa';
+      multitaskingContainer.style.borderRadius = '8px';
+      multitaskingContainer.style.overflow = 'hidden';
+      multitaskingContainer.style.margin = '0 auto 8px auto';
+      multitaskingContainer.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+
+      // 建立任務欄
+      const taskBar = document.createElement('div');
+      taskBar.className = 'task-bar';
+      taskBar.style.position = 'absolute';
+      taskBar.style.bottom = '0';
+      taskBar.style.left = '0';
+      taskBar.style.width = '100%';
+      taskBar.style.height = '38px';
+      taskBar.style.background = '#2c3e50';
+      taskBar.style.display = 'flex';
+      taskBar.style.alignItems = 'center';
+      taskBar.style.gap = '12px';
+      taskBar.style.padding = '0 12px';
+      taskBar.style.zIndex = '10';
+
+      const tasks = [
+        { name: '文件編輯器', icon: '📝' },
+        { name: '瀏覽器', icon: '🌐' },
+        { name: '音樂播放器', icon: '🎵' },
+        { name: '計算機', icon: '🧮' }
+      ];
+      tasks.forEach(task => {
+        const taskItem = document.createElement('button');
+        taskItem.className = 'task-item';
+        taskItem.textContent = task.icon + ' ' + task.name;
+        taskItem.style.background = 'none';
+        taskItem.style.border = 'none';
+        taskItem.style.color = '#fff';
+        taskItem.style.fontSize = '1em';
+        taskItem.style.cursor = 'pointer';
+        taskItem.style.padding = '4px 10px';
+        taskItem.style.borderRadius = '6px';
+        taskItem.style.transition = 'background 0.2s';
+        taskItem.onmouseenter = () => taskItem.style.background = '#34495e';
+        taskItem.onmouseleave = () => taskItem.style.background = 'none';
+        taskItem.onclick = () => {
+          createDemoWindow(task.name, multitaskingContainer);
+        };
+        taskBar.appendChild(taskItem);
+      });
+      multitaskingContainer.appendChild(taskBar);
+      container.appendChild(multitaskingContainer);
+
+      // 預設開啟兩個視窗
+      setTimeout(() => createDemoWindow('文件編輯器', multitaskingContainer), 300);
+      setTimeout(() => createDemoWindow('瀏覽器', multitaskingContainer), 900);
+    }
+
+    // 建立可拖曳視窗
+    function createDemoWindow(title, container) {
+      // 檢查是否已開啟同名視窗
+      if ([...container.querySelectorAll('.demo-window')].some(w => w.getAttribute('data-title') === title)) return;
+      const win = document.createElement('div');
+      win.className = 'demo-window';
+      win.setAttribute('data-title', title);
+      win.style.position = 'absolute';
+      win.style.left = Math.random() * 220 + 30 + 'px';
+      win.style.top = Math.random() * 80 + 20 + 'px';
+      win.style.width = '180px';
+      win.style.height = '110px';
+      win.style.background = '#fff';
+      win.style.border = '2px solid #b75e14';
+      win.style.borderRadius = '8px';
+      win.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+      win.style.zIndex = 20 + container.querySelectorAll('.demo-window').length;
+      win.style.display = 'flex';
+      win.style.flexDirection = 'column';
+      win.style.overflow = 'hidden';
+      win.style.userSelect = 'none';
+
+      // 標題列
+      const titleBar = document.createElement('div');
+      titleBar.style.background = '#ffe5c2';
+      titleBar.style.color = '#b75e14';
+      titleBar.style.fontWeight = 'bold';
+      titleBar.style.padding = '4px 10px';
+      titleBar.style.cursor = 'move';
+      titleBar.style.display = 'flex';
+      titleBar.style.alignItems = 'center';
+      titleBar.style.justifyContent = 'space-between';
+      titleBar.textContent = title;
+      // 關閉按鈕
+      const closeBtn = document.createElement('button');
+      closeBtn.textContent = '✖';
+      closeBtn.style.background = 'none';
+      closeBtn.style.border = 'none';
+      closeBtn.style.color = '#b75e14';
+      closeBtn.style.fontWeight = 'bold';
+      closeBtn.style.cursor = 'pointer';
+      closeBtn.style.fontSize = '1em';
+      closeBtn.onclick = e => {
+        e.stopPropagation();
+        win.remove();
+      };
+      titleBar.appendChild(closeBtn);
+      win.appendChild(titleBar);
+      // 內容
+      const content = document.createElement('div');
+      content.style.flex = '1';
+      content.style.padding = '10px';
+      content.style.fontSize = '0.98em';
+      content.style.color = '#333';
+      content.style.overflow = 'auto';
+      switch (title) {
+        case '文件編輯器':
+          content.innerHTML = '這是一個文件編輯器視窗。<br>你可以在多工環境下同時開啟多個應用程式。';
+          break;
+        case '瀏覽器':
+          content.innerHTML = '這是一個瀏覽器視窗。<br>可同時瀏覽多個網頁。';
+          break;
+        case '音樂播放器':
+          content.innerHTML = '這是一個音樂播放器視窗。<br>可邊聽音樂邊工作。';
+          break;
+        case '計算機':
+          content.innerHTML = '這是一個計算機視窗。<br>可隨時進行計算。';
+          break;
+        default:
+          content.innerHTML = '應用程式內容';
+      }
+      win.appendChild(content);
+      container.appendChild(win);
+
+      // 拖曳功能
+      let isDragging = false, startX = 0, startY = 0, origX = 0, origY = 0;
+      titleBar.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = win.getBoundingClientRect();
+        const parentRect = container.getBoundingClientRect();
+        origX = rect.left - parentRect.left;
+        origY = rect.top - parentRect.top;
+        win.style.zIndex = 99;
+        document.body.style.userSelect = 'none';
+      });
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('mouseup', onStopDrag);
+      function onDrag(e) {
+        if (!isDragging) return;
+        const parentRect = container.getBoundingClientRect();
+        let x = origX + e.clientX - startX;
+        let y = origY + e.clientY - startY;
+        // 限制拖曳範圍
+        x = Math.max(0, Math.min(x, parentRect.width - win.offsetWidth));
+        y = Math.max(0, Math.min(y, parentRect.height - win.offsetHeight - 38));
+        win.style.left = x + 'px';
+        win.style.top = y + 'px';
+      }
+      function onStopDrag() {
+        if (isDragging) {
+          isDragging = false;
+          win.style.zIndex = 20 + container.querySelectorAll('.demo-window').length;
+          document.body.style.userSelect = '';
+        }
+      }
+    }
+
+    // 單元三：檔案類型 互動 file-explorer
+    function renderFileTypeExplorer() {
+      const container = document.getElementById('filetype-explorer-container');
+      if (!container) return;
+      container.innerHTML = '';
+      // Explorer frame
+      const explorer = document.createElement('div');
+      explorer.className = 'file-explorer';
+      explorer.style.maxWidth = '520px';
+      explorer.style.margin = '0 auto';
+      explorer.style.background = '#fff';
+      explorer.style.borderRadius = '8px';
+      explorer.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+      // Header
+      const header = document.createElement('div');
+      header.className = 'file-explorer-header';
+      header.textContent = '檔案總管 - 認識檔案類型';
+      explorer.appendChild(header);
+      // Content
+      const content = document.createElement('div');
+      content.className = 'file-explorer-content';
+      // Sidebar
+      const sidebar = document.createElement('div');
+      sidebar.className = 'file-explorer-sidebar';
+      ['文件', '圖片', '音樂', '影片', '下載'].forEach(folder => {
+        const folderItem = document.createElement('div');
+        folderItem.style.padding = '5px';
+        folderItem.style.cursor = 'pointer';
+        folderItem.style.display = 'flex';
+        folderItem.style.alignItems = 'center';
+        folderItem.style.gap = '5px';
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-folder';
+        icon.style.color = '#f39c12';
+        const text = document.createElement('span');
+        text.textContent = folder;
+        folderItem.appendChild(icon);
+        folderItem.appendChild(text);
+        sidebar.appendChild(folderItem);
+      });
+      content.appendChild(sidebar);
+      // Main area
+      const main = document.createElement('div');
+      main.className = 'file-explorer-main';
+      const files = [
+        { name: '報告.txt', type: 'txt', color: '#3498db', desc: '文字檔案，常用於純文字記錄', icon: 'fas fa-file-alt' },
+        { name: '照片.gif', type: 'gif', color: '#e74c3c', desc: '圖片檔案，常見於網頁動畫', icon: 'fas fa-file-image' },
+        { name: '文件.doc', type: 'doc', color: '#2980b9', desc: 'Word 文件，常用於文書處理', icon: 'fas fa-file-word' },
+        { name: '表格.tab', type: 'tab', color: '#27ae60', desc: '表格檔案，常見於資料交換', icon: 'fas fa-file-excel' },
+        { name: '程式.exe', type: 'exe', color: '#8e44ad', desc: '可執行檔案，Windows 應用程式', icon: 'fas fa-file-code' },
+        { name: '音樂.mp3', type: 'mp3', color: '#f1c40f', desc: '音樂檔案，常見音訊格式', icon: 'fas fa-file-audio' }
+      ];
+      files.forEach(file => {
+        const fileIcon = document.createElement('div');
+        fileIcon.className = 'file-icon';
+        fileIcon.style.cursor = 'pointer';
+        // FontAwesome icon
+        const icon = document.createElement('i');
+        icon.className = file.icon;
+        icon.style.color = file.color;
+        icon.style.fontSize = '2rem';
+        fileIcon.appendChild(icon);
+        // 檔案名稱
+        const name = document.createElement('div');
+        name.className = 'file-name';
+        name.textContent = file.name;
+        fileIcon.appendChild(name);
+        fileIcon.addEventListener('click', () => showFileTypeInfo(file));
+        main.appendChild(fileIcon);
+      });
+      content.appendChild(main);
+      explorer.appendChild(content);
+      container.appendChild(explorer);
+    }
+
+    // 顯示檔案類型資訊
+    function showFileTypeInfo(file) {
+      // 僅允許一個 info window
+      const container = document.getElementById('filetype-explorer-container');
+      let old = container.querySelector('.filetype-info-window');
+      if (old) old.remove();
+
+      // 建立 info window
+      const infoWindow = document.createElement('div');
+      infoWindow.className = 'filetype-info-window';
+      infoWindow.style.position = 'absolute';
+      infoWindow.style.top = '50%';
+      infoWindow.style.left = '50%';
+      infoWindow.style.transform = 'translate(-50%, -50%)';
+      infoWindow.style.width = '300px';
+      infoWindow.style.background = 'white';
+      infoWindow.style.boxShadow = '0 0 10px rgba(0,0,0,0.2)';
+      infoWindow.style.borderRadius = '5px';
+      infoWindow.style.zIndex = '100';
+
+      // 標題欄
+      const header = document.createElement('div');
+      header.style.background = '#3498db';
+      header.style.color = 'white';
+      header.style.padding = '10px';
+      header.style.borderTopLeftRadius = '5px';
+      header.style.borderTopRightRadius = '5px';
+      header.style.display = 'flex';
+      header.style.justifyContent = 'space-between';
+      header.style.alignItems = 'center';
+
+      const title = document.createElement('div');
+      title.textContent = '檔案資訊';
+      const closeBtn = document.createElement('div');
+      closeBtn.textContent = '×';
+      closeBtn.style.cursor = 'pointer';
+      closeBtn.style.fontSize = '20px';
+      closeBtn.addEventListener('click', () => infoWindow.remove());
+      header.appendChild(title);
+      header.appendChild(closeBtn);
+      infoWindow.appendChild(header);
+
+      // 內容
+      const content = document.createElement('div');
+      content.style.padding = '15px';
+      const fileInfo = [
+        { label: '檔案名稱', value: file.name },
+        { label: '檔案類型', value: `.${file.type}` },
+        { label: '大小', value: `${Math.floor(Math.random() * 1000) + 10} KB` },
+        { label: '建立日期', value: '2025-05-15 14:30:22' },
+        { label: '修改日期', value: '2025-05-17 09:45:18' }
+      ];
+      fileInfo.forEach(info => {
+        const row = document.createElement('div');
+        row.style.marginBottom = '10px';
+        row.style.display = 'flex';
+        const label = document.createElement('div');
+        label.style.width = '100px';
+        label.style.fontWeight = 'bold';
+        label.textContent = `${info.label}:`;
+        const value = document.createElement('div');
+        value.style.flex = '1';
+        value.textContent = info.value;
+        row.appendChild(label);
+        row.appendChild(value);
+        content.appendChild(row);
+      });
+      // 操作按鈕
+      const actions = document.createElement('div');
+      actions.style.display = 'flex';
+      actions.style.justifyContent = 'center';
+      actions.style.gap = '10px';
+      actions.style.marginTop = '15px';
+      ['開啟', '複製', '刪除'].forEach(op => {
+        const btn = document.createElement('button');
+        btn.textContent = op;
+        btn.style.padding = '5px 15px';
+        btn.style.border = 'none';
+        btn.style.borderRadius = '3px';
+        btn.style.background = '#3498db';
+        btn.style.color = 'white';
+        btn.style.cursor = 'pointer';
+        btn.addEventListener('mouseenter', () => btn.style.background = '#2980b9');
+        btn.addEventListener('mouseleave', () => btn.style.background = '#3498db');
+        btn.addEventListener('click', () => {
+          alert(`已${op}檔案: ${file.name}`);
+          infoWindow.remove();
+        });
+        actions.appendChild(btn);
+      });
+      content.appendChild(actions);
+      infoWindow.appendChild(content);
+      container.appendChild(infoWindow);
+    }
+
+    // 顯示用戶名
+    document.addEventListener('DOMContentLoaded', function() {
+      var username = localStorage.getItem('username') || '訪客';
+      document.getElementById('current-username').textContent = username;
     });
   </script>
 </body>
