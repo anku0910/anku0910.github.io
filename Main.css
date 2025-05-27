@@ -45,22 +45,6 @@ body {
   border-left: none;
 }
 
-.rightbar::after {
-  content: "";
-  position: absolute;
-  top: 120px;
-  /* 控制邊框起始位置 */
-  left: 1045px;
-  width: 10px;
-  /* 邊框寬度 */
-  height: 86%;
-  max-height: 800px;
-  /* 邊框長度 */
-  background-color: #C47323;
-  border-radius: 0 0px 0px 0;
-  box-shadow: -4px 0 12px #a3492833;
-  /* 可選圓角 */
-}
 
 .sidebar {
   z-index: 2;
@@ -75,22 +59,6 @@ body {
   border-right: none;
 }
 
-.sidebar::after {
-  content: "";
-  position: absolute;
-  top: 120px;
-  /* 控制邊框起始位置 */
-  right: 1045px;
-  width: 10px;
-  /* 邊框寬度 */
-  height: 86%;
-  max-height: 800px;
-  /* 邊框長度 */
-  background-color: #C47323;
-  box-shadow: 4px 0 12px #a3492833;
-  border-radius: 0 0px 0px 0;
-  /* 可選圓角 */
-}
 
 .rightbar {
   z-index: 2;
