@@ -211,6 +211,7 @@
                 <img src="images/ChatGPT Image 2025年4月30日 上午07_37_57 3.png" alt="頭像" style="width:90px;height:90px;border-radius:50%;margin-bottom:12px;border:3px solid #b75e14;">
                 <div style="font-size:1.2em;font-weight:bold;color:#e6bf9f;margin-bottom:4px;" id="profile-username"></div>
                 <div style="color:#888;font-size:0.98em;margin-bottom:8px;">學習者</div>
+                <span id="current-username" style="font-size:1.08em;color:#b75e14;font-weight:bold;"></span>
                 <button style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;" onclick="editProfile()">編輯資料</button>
               </div>
               <div style="margin-top:18px;">
@@ -225,8 +226,8 @@
               <div style="font-size:1.1em;font-weight:bold;color:#2a8a2a;margin-bottom:8px;">學習統計</div>
               <div style="color:#333;margin-bottom:6px;">已完成課程：<span id="profile-courses" style="color:#b75e14;font-weight:bold;">0</span></div>
               <div style="color:#333;margin-bottom:6px;">累積學習時數：<span id="profile-hours" style="color:#b75e14;font-weight:bold;">0</span> 小時</div>
-              <div style="color:#333;margin-bottom:6px;">獲得徽章：<span id="profile-badges" style="color:#b75e14;font-weight:bold;">0</span></div>
-              <div style="color:#333;margin-bottom:6px;">互動表格正確率：<span id="profile-table-rate" style="color:#b75e14;font-weight:bold;">0%</span></div>
+              <div style="color:#333;margin-bottom:6px;">獲得徽章：<span id="profile-badges" style="color:#b75e14;font-weight:bold;">3</span></div>
+              <div style="color:#333;margin-bottom:6px;">互動表格正確率：<span id="profile-table-rate" style="color:#b75e14;font-weight:bold;">100%</span></div>
             </div>
             <!-- 社群/好友卡 -->
             <div style="background:#e7eaff;border-radius:14px;box-shadow:0 2px 8px #8a9fd022;padding:24px 32px;min-width:260px;max-width:320px;">
@@ -279,10 +280,63 @@
           </div>
         </div>
         <!-- 任務頁面 -->
-        <div id="page-mission" style="display:none;">
-          <h2>任務</h2>
-          <p>這裡是任務內容。</p>
+        <div id="page-mission" style="display:none;max-width:900px;margin:0 auto;padding:32px 0;">
+          <div style="display:flex;align-items:center;gap:24px;margin-bottom:24px;">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#ffe5c2" stroke="#b75e14" stroke-width="3"/><path d="M24 10 L30 32 L18 32 Z" fill="#3498db"/><circle cx="24" cy="37" r="4" fill="#b75e14" stroke="#fff" stroke-width="1.5"/></svg>
+            <div>
+              <h2 style="margin:0 0 6px 0;font-size:2em;color:#b75e14;">今日任務中心</h2>
+              <div style="color:#666;font-size:1.1em;">歡迎回來，準備好挑戰新任務、解鎖成就，讓學習更有趣！</div>
+            </div>
           </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
+            <!-- 左側：今日任務與進度 -->
+            <div>
+              <div style="background:#fffbe6;border-radius:12px;padding:20px 24px;margin-bottom:18px;box-shadow:0 2px 8px #b75e1422;">
+          <h3 style="margin-top:0;color:#b75e14;">今日任務</h3>
+          <ul style="padding-left:18px;margin:0 0 8px 0;font-size:1.08em;">
+            <li>完成「檔案類型」互動練習</li>
+            <li>參加小測驗並達 80 分以上</li>
+            <li>瀏覽 1 篇學習筆記</li>
+            <li>分享一個學習心得</li>
+          </ul>
+          <button style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:8px 22px;font-size:1em;cursor:pointer;box-shadow:0 1px 4px #b75e1422;">開始挑戰</button>
+              </div>
+              <div style="background:#f7f7fa;border-radius:12px;padding:18px 22px;box-shadow:0 2px 8px #b75e1422;">
+          <h3 style="margin-top:0;color:#198754;">學習進度追蹤</h3>
+          <div style="margin-bottom:8px;">本週已完成 <b>3/5</b> 任務</div>
+          <div style="background:#e7f7e7;border-radius:8px;height:18px;overflow:hidden;margin-bottom:8px;">
+            <div style="background:#198754;height:100%;width:60%;transition:width 0.5s;"></div>
+          </div>
+          <div style="font-size:0.98em;color:#888;">再完成 2 項任務即可獲得新徽章！</div>
+              </div>
+            </div>
+            <!-- 右側：徽章牆、排行榜、激勵語 -->
+            <div>
+              <div style="background:#fff;border-radius:12px;padding:18px 22px;margin-bottom:18px;box-shadow:0 2px 8px #b75e1422;">
+          <h3 style="margin-top:0;color:#b75e14;">徽章牆</h3>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#e7f7e7" stroke="#198754" stroke-width="3"/><rect x="16" y="16" width="16" height="16" rx="4" fill="#3498db"/><circle cx="24" cy="24" r="5" fill="#fff"/></svg>
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#f7e7e7" stroke="#e74c3c" stroke-width="3"/><polygon points="24,14 34,34 14,34" fill="#f1c40f"/><circle cx="24" cy="34" r="4" fill="#e74c3c"/></svg>
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:0.3;filter:grayscale(1);"><circle cx="24" cy="24" r="22" fill="#eee" stroke="#bbb" stroke-width="3"/><path d="M24 10 L30 32 L18 32 Z" fill="#bbb"/><circle cx="24" cy="37" r="4" fill="#bbb"/></svg>
+            <span style="color:#aaa;font-size:1.2em;">...更多</span>
+          </div>
+              </div>
+              <div style="background:#f7f7fa;border-radius:12px;padding:18px 22px;margin-bottom:18px;box-shadow:0 2px 8px #b75e1422;">
+          <h3 style="margin-top:0;color:#3498db;">排行榜</h3>
+          <ol style="margin:0 0 8px 18px;padding:0;font-size:1.05em;">
+            <li>小明 <span style="color:#b75e14;font-weight:bold;">★</span></li>
+            <li>小美</li>
+            <li>阿志</li>
+          </ol>
+          <div style="font-size:0.95em;color:#888;">努力學習，爭取上榜！</div>
+              </div>
+              <div style="background:#fffbe6;border-radius:12px;padding:16px 20px;box-shadow:0 2px 8px #b75e1422;">
+          <div style="font-size:1.1em;color:#b75e14;font-weight:bold;">「每一天的努力，都是未來的種子！」</div>
+          <button style="margin-top:10px;background:#3498db;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">打卡簽到</button>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- 作品頁面 -->
         <div id="page-work" style="display:none;">
           <h2 style="text-align:center; color:#b75e14; letter-spacing:2px; margin-bottom:18px;">作品展示</h2>
@@ -308,9 +362,67 @@
           </div>
         </div>
         <!-- 徽章頁面 -->
-        <div id="page-badge" style="display:none;">
-          <h2>徽章</h2>
-          <p>這裡是徽章內容。</p>
+        <div id="page-badge" style="display:none;max-width:900px;margin:0 auto;padding:32px 0;">
+          <div style="display:flex;align-items:center;gap:24px;margin-bottom:24px;">
+            <svg width="72" height="72" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="30" fill="#fffbe6" stroke="#3498db" stroke-width="4"/>
+              <path d="M32 12 L40 36 L24 36 Z" fill="#b75e14"/>
+              <circle cx="32" cy="44" r="6" fill="#3498db" stroke="#fff" stroke-width="2"/>
+            </svg>
+            <div>
+              <h2 style="margin:0 0 6px 0;font-size:2em;color:#3498db;">我的徽章收藏</h2>
+              <div style="color:#666;font-size:1.1em;">每一枚徽章，都是你努力的見證與榮耀！</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
+            <!-- 左側：徽章展示與分類 -->
+            <div>
+              <div style="background:#fffbe6;border-radius:12px;padding:20px 24px;margin-bottom:18px;box-shadow:0 2px 8px #b75e1422;">
+                <h3 style="margin-top:0;color:#b75e14;">徽章展示</h3>
+                <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;min-height:60px;">
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#ffe5c2" stroke="#b75e14" stroke-width="3"/><path d="M24 10 L30 32 L18 32 Z" fill="#3498db"/><circle cx="24" cy="37" r="4" fill="#b75e14" stroke="#fff" stroke-width="1.5"/></svg>
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#e7f7e7" stroke="#198754" stroke-width="3"/><rect x="16" y="16" width="16" height="16" rx="4" fill="#3498db"/><circle cx="24" cy="24" r="5" fill="#fff"/></svg>
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#f7e7e7" stroke="#e74c3c" stroke-width="3"/><polygon points="24,14 34,34 14,34" fill="#f1c40f"/><circle cx="24" cy="34" r="4" fill="#e74c3c"/></svg>
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:0.3;filter:grayscale(1);"><circle cx="24" cy="24" r="22" fill="#eee" stroke="#bbb" stroke-width="3"/><path d="M24 10 L30 32 L18 32 Z" fill="#bbb"/><circle cx="24" cy="37" r="4" fill="#bbb"/></svg>
+                  <span style="color:#aaa;font-size:1.2em;">...更多</span>
+                </div>
+                <div style="margin-top:12px;display:flex;gap:10px;">
+                  <button style="background:#3498db;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">全部</button>
+                  <button style="background:#fff;color:#3498db;border:1px solid #3498db;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">學習</button>
+                  <button style="background:#fff;color:#3498db;border:1px solid #3498db;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">任務</button>
+                  <button style="background:#fff;color:#3498db;border:1px solid #3498db;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">挑戰</button>
+                </div>
+              </div>
+              <div style="background:#f7f7fa;border-radius:12px;padding:18px 22px;box-shadow:0 2px 8px #b75e1422;">
+                <h3 style="margin-top:0;color:#198754;">成就進度</h3>
+                <div style="margin-bottom:8px;">已解鎖 <b>3/12</b> 枚徽章</div>
+                <div style="background:#e7f7e7;border-radius:8px;height:18px;overflow:hidden;margin-bottom:8px;">
+                  <div style="background:#198754;height:100%;width:25%;transition:width 0.5s;"></div>
+                </div>
+                <div style="font-size:0.98em;color:#888;">再獲得 1 枚徽章即可晉升「學習達人」！</div>
+              </div>
+            </div>
+            <!-- 右側：徽章故事與解鎖說明 -->
+            <div>
+              <div style="background:#fff;border-radius:12px;padding:18px 22px;margin-bottom:18px;box-shadow:0 2px 8px #b75e1422;">
+                <h3 style="margin-top:0;color:#b75e14;">徽章故事</h3>
+                <div style="font-size:1.08em;color:#444;">每一枚徽章背後都有一段故事。<br>點擊徽章可查看獲得條件與你的學習歷程紀錄。</div>
+                <ul style="margin:10px 0 0 18px;padding:0;color:#888;font-size:0.98em;">
+                  <li>檔案達人：完成檔案類型互動練習</li>
+                  <li>學習新星：首次登入平台</li>
+                  <li>任務高手：連續完成 5 天任務</li>
+                  <li>挑戰勇者：參加 3 次小測驗</li>
+                </ul>
+              </div>
+              <div style="background:#fffbe6;border-radius:12px;padding:16px 20px;box-shadow:0 2px 8px #b75e1422;">
+                <div style="font-size:1.1em;color:#b75e14;font-weight:bold;">「每一枚徽章，都是你努力的勳章！」</div>
+                <div style="margin-top:10px;font-size:0.98em;color:#888;">快去挑戰新任務，解鎖更多徽章吧！</div>
+                <div style="margin-top:10px;">
+                  <button style="background:#3498db;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">前往任務中心</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <!-- 其他頁面依此類推... -->
       </div>
@@ -433,7 +545,7 @@
           <div class="record-card" style="background:#fffbe6;border:1px solid #e0c08a;border-radius:10px;padding:18px 22px;min-width:220px;max-width:320px;box-shadow:0 2px 8px #0001; padding:8px">
             <div style="font-size:1.1em;font-weight:bold;color:#b75e14;margin-bottom:6px;">${lesson.title}</div>
             <div style="color:#333;margin-bottom:4px;">目前單元：<span style="color:#2a8a2a;">${unitTitle}</span></div>
-            <div style="color:#888;margin-bottom:8px;">進度：<span style="color:#b75e14;font-weight:bold;">${percent}%</span></div>
+            <div style="color:#888;margin-bottom:4px;">進度：<span style="color:#b75e14;font-weight:bold;">${percent}%</span></div>
             <div style="height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-bottom:2px;">
               <div style="height:100%;width:${percent}%;background:#b75e14;"></div>
             </div>
@@ -931,7 +1043,7 @@
               { text: "前往小測驗", action: () => showSubUnit(4) }
             ]
           }
-        ],
+          ],
       ];
 
       const dialogue = dialogueSets[idx];
@@ -1598,6 +1710,12 @@
       infoWindow.appendChild(content);
       container.appendChild(infoWindow);
     }
+
+    // 顯示用戶名
+    document.addEventListener('DOMContentLoaded', function() {
+      var username = localStorage.getItem('username') || '訪客';
+      document.getElementById('current-username').textContent = username;
+    });
   </script>
 </body>
 
