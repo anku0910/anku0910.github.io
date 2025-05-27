@@ -106,11 +106,34 @@
       color: #fff;
       transform: scale(1.06);
     }
+
+    #dialogue-choices {
+      flex-direction: column !important;
+      gap: 12px;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    #dialogue-text {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #b75e14; 
+      margin-bottom: 20px;
+      min-height: 60px;
+    }
     /* 其他現有樣式保持不變 */
   </style>
 </head>
 
 <body>
+  <!-- 用戶名輸入與顯示 -->
+  <div style="position:fixed;bottom:10px;right:20px;z-index:999;background:#fffbe673;padding:8px 16px;border-radius:8px;box-shadow:0 2px 8px #0001;">
+    <span id="user-greeting"></span>
+    <input id="username-input" type="text" placeholder="輸入用戶名" style="width:120px;" />
+    <button onclick="saveUsername()">確定</button>
+    <span id="sync-status" style="margin-left:10px;color:#888;font-size:0.95em;"></span>
+  </div>
   <div class="main-card">
     <!-- 側邊欄 -->
     <div class="sidebar">
@@ -119,7 +142,6 @@
         <div class="logo-text">旅行中</div>
       </div>
       <div class="dark-frame" style="visibility:hidden"></div>
-      <button class="nav-btn" onclick="showPage('page-home')">首頁</button>
       <button class="nav-btn" onclick="showPage('page-courses')">我的課程</button>
       <button class="nav-btn" onclick="showPage('page-records')">學習紀錄</button>
       <button class="nav-btn" onclick="showPage('page-profile')">個人檔案</button>
@@ -173,15 +195,10 @@
           <h2>筆記</h2>
           <p>這裡是筆記內容。</p>
         </div>
-        <!-- 首頁 -->
-        <div id="page-home" style="display:none;">
-          <h2>首頁</h2>
-          <p>這裡是首頁內容。</p>
-        </div>
         <!-- 學習紀錄 -->
         <div id="page-records" style="display:none;">
           <h2>學習紀錄</h2>
-          <p>這裡是學習紀錄內容。</p>
+          <p>請登入。</p>
         </div>
         <!-- 個人檔案頁面 -->
         <div id="page-profile" style="display:none;">
@@ -210,7 +227,7 @@
           </div>
           <div id="lesson-units" class="unit-btns-wrapper"></div>
           <div class="unit-content-frame" style="background: #fff; border-radius: 8px; padding: 18px 24px; margin-bottom: 20px;">
-            <h3 id="unit-title" style="color: #b75e14; font-size: 1.2rem; margin-bottom: 8px;">單元標題</h3>
+            <h3 id="unit-title" style="color: #b75e14; font-size: 1.2rem; margin-top: -4px;">單元標題</h3>
             <div id="unit-content" style="color: #333; font-size: 1rem;">單元內容會顯示在這裡。</div>
           </div>
         </div>
@@ -246,6 +263,155 @@
   <!-- AI學伴  -->
   <div id="webchat" style="z-index: 2; position:absolute; bottom: 0%; right:0; width: 300px; height: 400px; display: none;"></div>
   <script>
+    // Airtable 設定
+    const AIRTABLE_API_KEY = "patNtYAmGlBk2YYc9.463fef5c30e8d38764c97883dceca23fdce8b527cd0aa8d57a4e400657c18a60";
+    const AIRTABLE_BASE_ID = "appWt6fSHWOVeEs9O";
+    const AIRTABLE_TABLE = "Records";
+    let currentUsername = localStorage.getItem('username') || '';
+    let userRecordId = null;
+    let userProgress = {}; // {lessonId: unitIdx}
+
+    // 用戶名儲存與顯示
+    function saveUsername() {
+      const input = document.getElementById('username-input');
+      const name = input.value.trim();
+      if (!name) return;
+      currentUsername = name;
+      localStorage.setItem('username', name);
+      document.getElementById('user-greeting').textContent = `你好, ${name}！`;
+      input.style.display = 'none';
+      input.nextElementSibling.style.display = 'none';
+      fetchUserProgress();
+    }
+    function showUsernameUI() {
+      const input = document.getElementById('username-input');
+      const greeting = document.getElementById('user-greeting');
+      if (currentUsername) {
+        greeting.textContent = `你好, ${currentUsername}！`;
+        input.style.display = 'none';
+        input.nextElementSibling.style.display = 'none';
+        fetchUserProgress();
+      } else {
+        greeting.textContent = '請輸入用戶名：';
+        input.style.display = '';
+        input.nextElementSibling.style.display = '';
+      }
+    }
+    window.addEventListener('DOMContentLoaded', showUsernameUI);
+
+    function setSyncStatus(msg, color = "#888") {
+      const el = document.getElementById('sync-status');
+      if (el) {
+        el.textContent = msg;
+        el.style.color = color;
+      }
+    }
+
+    // Airtable 互動
+    async function fetchUserProgress() {
+      if (!currentUsername) return;
+      setSyncStatus("同步中...", "#888");
+      try {
+        // 查詢 Airtable 是否有此用戶
+        const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}?filterByFormula={username}='${encodeURIComponent(currentUsername)}'`;
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
+        });
+        const data = await res.json();
+        if (data.records && data.records.length > 0) {
+          userRecordId = data.records[0].id;
+          userProgress = data.records[0].fields.progress ? JSON.parse(data.records[0].fields.progress) : {};
+        } else {
+          // 新增用戶
+          const createRes = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ fields: { username: currentUsername, progress: "{}" } })
+          });
+          const createData = await createRes.json();
+          userRecordId = createData.id;
+          userProgress = {};
+        }
+        setSyncStatus("已同步", "#2a8a2a");
+        // 若目前在課程頁，刷新進度
+        updateLessonProgressUI();
+        // 新增：刷新學習紀錄卡片
+        renderLearningRecords();
+      } catch (e) {
+        setSyncStatus("同步失敗", "#c00");
+      }
+    }
+
+    // 學習紀錄卡片渲染
+    function renderLearningRecords() {
+      const recordsPage = document.getElementById('page-records');
+      if (!recordsPage) return;
+      let html = '<h2 style="text-align:center;">學習紀錄</h2>';
+      html += '<div class="learning-records-list" style="display:flex;flex-wrap:wrap;gap:16px;">';
+      let hasRecord = false;
+      for (const lessonId in lessons) {
+        const lesson = lessons[lessonId];
+        const unitIdx = userProgress[lessonId] || 0;
+        const total = lesson.units.length;
+        const percent = Math.round(((unitIdx + 1) / total) * 100);
+        const unitTitle = lesson.units[unitIdx]?.title || '';
+        html += `
+          <div class="record-card" style="background:#fffbe6;border:1px solid #e0c08a;border-radius:10px;padding:18px 22px;min-width:220px;max-width:320px;box-shadow:0 2px 8px #0001;">
+            <div style="font-size:1.1em;font-weight:bold;color:#b75e14;margin-bottom:6px;">${lesson.title}</div>
+            <div style="color:#333;margin-bottom:4px;">目前單元：<span style="color:#2a8a2a;">${unitTitle}</span></div>
+            <div style="color:#888;margin-bottom:8px;">進度：<span style="color:#b75e14;font-weight:bold;">${percent}%</span></div>
+            <div style="height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-bottom:2px;">
+              <div style="height:100%;width:${percent}%;background:#b75e14;"></div>
+            </div>
+          </div>
+        `;
+        hasRecord = true;
+      }
+      html += '</div>';
+      if (!hasRecord) html += '<div style="color:#888;margin-top:16px;">尚無學習紀錄</div>';
+      recordsPage.innerHTML = html;
+    }
+
+    async function updateUserProgress(lessonId, unitIdx) {
+      if (!currentUsername || !userRecordId) return;
+      userProgress[lessonId] = unitIdx;
+      setSyncStatus("同步中...", "#888");
+      try {
+        await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}/${userRecordId}`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ fields: { progress: JSON.stringify(userProgress) } })
+        });
+        setSyncStatus("已同步", "#2a8a2a");
+        updateLessonProgressUI();
+      } catch (e) {
+        setSyncStatus("同步失敗", "#c00");
+      }
+    }
+
+    // 進度條與進度數字刷新
+    function updateLessonProgressUI(unitIdxOverride) {
+      // 只在課堂頁有效
+      const lessonPage = document.getElementById('page-lesson');
+      if (!lessonPage || lessonPage.style.display === 'none') return;
+      const lessonTitle = document.getElementById('lesson-title').textContent;
+      let lessonId = '';
+      for (const k in lessons) if (lessons[k].title === lessonTitle) lessonId = k;
+      if (!lessonId) return;
+      // 若有傳入 unitIdxOverride 則優先用，否則用 userProgress
+      const unitIdx = (typeof unitIdxOverride === 'number') ? unitIdxOverride : (userProgress[lessonId] || 0);
+      const total = lessons[lessonId].units.length;
+      const percent = Math.round(((unitIdx + 1) / total) * 100);
+      document.getElementById('lesson-progress').textContent = percent + '%';
+
+    }
+
     const lessons = {
       'basic-pc': {
         title: '電腦基礎概念與操作',
@@ -254,15 +420,16 @@
           {
             title: '單元一：電腦的組成',
             content: `
-              <div>
-                <div style="margin-bottom:16px; display: flex; gap: 12px; flex-wrap: wrap;">
+              <div style="display: flex; flex-direction: row; gap: 24px;">
+                <div id="subunit-content" style="flex:1;"></div>
+                <div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-end;">
                   <button class="subunit-btn" id="subunit-btn-0" onclick="showSubUnit(0)">主機</button>
                   <button class="subunit-btn" id="subunit-btn-1" onclick="showSubUnit(1)">螢幕</button>
                   <button class="subunit-btn" id="subunit-btn-2" onclick="showSubUnit(2)">鍵盤</button>
                   <button class="subunit-btn" id="subunit-btn-3" onclick="showSubUnit(3)">滑鼠</button>
-                  <button class="subunit-btn" id="subunit-btn-4" onclick="showSubUnit(4)">互動表格</button>
+                  <button class="subunit-btn" id="subunit-btn-4" onclick="showSubUnit(4)">小測驗</button>
                 </div>
-                <div id="subunit-content"></div>
+              </div>
               </div>
             `
           },
@@ -297,7 +464,7 @@
     };
 
     function showPage(pageId, lessonId) {
-      const pages = ['page-home', 'page-notes', 'page-courses', 'page-records', 'page-lesson', 'page-profile', 'page-adventure', 'page-mission', 'page-badge'];
+      const pages = [ 'page-notes', 'page-courses', 'page-records', 'page-lesson', 'page-profile', 'page-adventure', 'page-mission', 'page-badge'];
       pages.forEach(id => {
         document.getElementById(id).style.display = (id === pageId) ? '' : 'none';
       });
@@ -314,7 +481,9 @@
         });
         document.getElementById('lesson-units').innerHTML = unitListHtml;
         // 預設顯示第一個單元內容並高亮
-        showUnit(lessonId, 0);
+        let unitIdx = 0;
+        if (userProgress[lessonId] !== undefined) unitIdx = userProgress[lessonId];
+        showUnit(lessonId, unitIdx);
       }
     }
     // 顯示單元內容
@@ -334,6 +503,10 @@
       // 高亮目前按鈕
       const btns = document.querySelectorAll('.unit-btn');
       btns.forEach((btn, idx) => btn.classList.toggle('active', idx === unitIdx));
+      // 寫入進度
+      updateUserProgress(lessonId, unitIdx);
+      // 立即刷新進度數字與進度條（用傳入的 unitIdx）
+      updateLessonProgressUI(unitIdx);
     }
 
     // 單元一子單元內容
@@ -344,7 +517,6 @@
           <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div>
           <div id="dialogue-choices" style="display:flex;gap:12px;"></div>
         </div>
-        主機：電腦的核心部件，負責資料處理與運算。
       </div>`,
       // 螢幕
       `<div>
@@ -352,7 +524,6 @@
           <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div>
           <div id="dialogue-choices" style="display:flex;gap:12px;"></div>
         </div>
-        螢幕：顯示電腦輸出的資訊，屬於輸出設備。
       </div>`,
       // 鍵盤
       `<div>
@@ -360,7 +531,6 @@
           <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div>
           <div id="dialogue-choices" style="display:flex;gap:12px;"></div>
         </div>
-        鍵盤：常見的輸入設備，用於輸入文字與指令。
       </div>`,
       // 滑鼠
       `<div>
@@ -368,7 +538,6 @@
           <div id="dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div>
           <div id="dialogue-choices" style="display:flex;gap:12px;"></div>
         </div>
-        滑鼠：常見的輸入設備，用於控制游標與操作介面。
       </div>`,
       // 互動表格
       `<div id="interactive-table-frame" style='margin: 4px 0;'>
@@ -401,102 +570,259 @@
 
     // 對話選擇系統 for 單元一子單元
     function renderDialogueSystemForSubunit(idx) {
-      const dialogueSets = [
+      const dialogueSets = [  
         // 主機
         [
           {
-            text: "歡迎進入電腦的組成介紹。你知道主機的主要功能是什麼嗎？",
+            text: "歡迎來到電腦基礎課程！現在我們將一同認識電腦的組成與其功能。<br>在日常生活中，我們經常使用電腦完成各種任務，例如撰寫文件、觀看影片、處理照片，甚至進行線上學習與遠端會議。然而，當你打開一台電腦時，你是否曾好奇過這台機器是如何運作的？又是哪些部件在背後默默地協助我們完成各種操作？",
             choices: [
-              { text: "資料處理與運算", next: 1 },
-              { text: "顯示畫面", next: 2 }
+              { text: "我想直接前往下個單元", action: () => showSubUnit(1) },
+              { text: "我想了解主機的組成", next: 1 }
             ]
           },
           {
-            text: "答對了！主機負責資料處理與運算。下一步，來看看螢幕。",
+            text: "首先，讓我們聚焦在電腦的「主機」（有時也稱為主機殼、電腦本體）。<br>主機內部就像是一個小型的工廠，每一個零件都各司其職，彼此協作，讓整台電腦順利運作。那麼，你知道主機的主要功能是什麼嗎？",
             choices: [
-              { text: "前往螢幕", action: () => showSubUnit(1) }
+              { text: "處理與儲存資料、執行程式、控制其他設備", next: 2 },
+              { text: "只是裝飾用的外殼", next: 3 }
             ]
           },
           {
-            text: "主機主要負責資料處理與運算，顯示畫面是螢幕的功能喔！",
+            text: "正確！主機的核心任務，是處理與儲存資料、執行程式、以及控制其他設備的運作。<br>它包含了數個關鍵的硬體組件：中央處理器（CPU）、記憶體（RAM）、儲存裝置（硬碟、SSD）、主機板、電源供應器、顯示卡等。想進一步了解這些組件嗎？",
             choices: [
-              { text: "再試一次", next: 0 }
+              { text: "想！請介紹各組件", next: 4 },
+              { text: "不用了，直接進入下個單元", action: () => showSubUnit(1) }
+            ]
+          },
+          {
+            text: "其實主機不是裝飾用的外殼，而是電腦運作的核心。主機內部包含許多重要的硬體組件。<br>想知道有哪些組件嗎？",
+            choices: [
+              { text: "想！請介紹各組件", next: 4 },
+              { text: "不用了，直接進入下個單元", action: () => showSubUnit(1) }
+            ]
+          },
+          {
+            text: "中央處理器（CPU）：被稱為電腦的大腦，負責進行各種運算與邏輯判斷。<br>當你開啟一個應用程式或進行輸入操作時，CPU 會迅速解讀並執行這些指令。",
+            choices: [
+              { text: "下一個組件", next: 5 }
+            ]
+          },
+          {
+            text: "記憶體（RAM）：是 CPU 暫時存取資料的空間，就像是你在辦公桌上放置的工作資料。<br>記憶體越大，你同時能運行的程式也就越多、越順暢。",
+            choices: [
+              { text: "下一個組件", next: 6 }
+            ]
+          },
+          {
+            text: "儲存裝置（硬碟、SSD）：負責長期儲存檔案、系統與應用程式。<br>傳統硬碟（HDD）與固態硬碟（SSD）在讀寫速度上有很大的差異，也影響著整體效能。",
+            choices: [
+              { text: "下一個組件", next: 7 }
+            ]
+          },
+          {
+            text: "主機板（Motherboard）：所有硬體的連接中心。<br>它就像城市中的道路系統，讓電力與資料在各零件間順利流通。",
+            choices: [
+              { text: "下一個組件", next: 8 }
+            ]
+          },
+          {
+            text: "電源供應器（Power Supply）：將插座供應的電力轉換成電腦所需的各種電壓，並穩定供應給所有硬體。",
+            choices: [
+              { text: "下一個組件", next: 9 }
+            ]
+          },
+          {
+            text: "顯示卡（GPU）：負責圖像處理與輸出，對於觀看影片、玩遊戲、或進行繪圖與剪輯工作非常重要。",
+            choices: [
+              { text: "全部看完了，進入下個單元", action: () => showSubUnit(1) }
+            ]
+          },
+          {
+            text: "當我們熟悉這些基礎組件後，就能更了解電腦如何接收我們的指令，如何思考、如何運作，甚至在故障時可以更快判斷問題所在。",
+            choices: [
+              { text: "進入下個單元", action: () => showSubUnit(1) }
             ]
           }
         ],
+        
         // 螢幕
         [
           {
-            text: "螢幕屬於哪一類設備？",
+            text: "電腦與使用者互動時，會透過『輸入設備』接收資料，並用『輸出設備』回應結果。你知道，螢幕這個用來顯示資訊的裝置，屬於哪一類設備嗎？",
             choices: [
               { text: "輸入設備", next: 2 },
               { text: "輸出設備", next: 1 }
             ]
           },
           {
-            text: "正確！螢幕是輸出設備。接下來認識鍵盤。",
+            text: "正確！螢幕是輸出設備，負責將電腦處理後的資訊以畫面方式呈現給使用者。你想了解哪些現代螢幕的特色？",
             choices: [
+              { text: "畫質與解析度", next: 3 },
+              { text: "觸控與互動功能", next: 4 },
+              { text: "護眼與健康設計", next: 5 },
               { text: "前往鍵盤", action: () => showSubUnit(2) }
             ]
           },
           {
-            text: "螢幕是輸出設備，負責顯示資訊。",
+            text: "螢幕其實是輸出設備，負責顯示資訊。再想想看！",
             choices: [
               { text: "再試一次", next: 0 }
+            ]
+          },
+          {
+            text: "現代螢幕通常支援高解析度，例如 Full HD（1920x1080）、2K（2560x1440）、甚至 4K（3840x2160）或更高等級的影像輸出。這使得畫面更加細膩、色彩更加鮮明，不論是觀看高畫質影片、處理影像設計，還是進行遊戲娛樂，都能提供更沉浸、更真實的視覺體驗。",
+            choices: [
+              { text: "觸控與互動功能", next: 4 },
+              { text: "護眼與健康設計", next: 5 },
+              { text: "前往鍵盤", action: () => showSubUnit(2) }
+            ]
+          },
+          {
+            text: "許多螢幕具備觸控功能，讓使用者可以直接透過手指或觸控筆進行點選、滑動、縮放等操作，這對於簡報、繪圖、教育學習甚至一般使用者來說，都大大提升了互動性與操作的直覺性。這類螢幕特別常見於平板電腦、二合一筆電，以及某些高階商務顯示器上。",
+            choices: [
+              { text: "畫質與解析度", next: 4 },
+              { text: "護眼與健康設計", next: 5 },
+              { text: "前往鍵盤", action: () => showSubUnit(2) }
+            ]
+          },
+          {
+            text: "許多產品內建了護眼模式或低藍光功能，透過調整顯示色溫、降低藍光波長輸出，來減少長時間使用螢幕所造成的視覺疲勞與潛在的眼睛傷害。某些高階螢幕甚至支援無閃爍技術（Flicker-Free），進一步減輕眼睛在觀看時的不適感。",
+            choices: [
+              { text: "畫質與解析度", next: 4 },
+              { text: "觸控與互動功能", next: 5 },
+              { text: "前往鍵盤", action: () => showSubUnit(2) }
             ]
           }
         ],
         // 鍵盤
         [
           {
-            text: "鍵盤的主要用途是？",
+            text: "鍵盤是我們與電腦溝通與操作的核心工具之一，屬於最常見也最基本的輸入裝置。你想了解鍵盤的哪些主題？",
             choices: [
-              { text: "輸入文字與指令", next: 1 },
-              { text: "播放音樂", next: 2 }
-            ]
-          },
-          {
-            text: "答對了！鍵盤是常見的輸入設備。接下來看看滑鼠。",
-            choices: [
+              { text: "主要用途", next: 1 },
+              { text: "快捷鍵與功能鍵", next: 2 },
+              { text: "控制區塊", next: 3 },
+              { text: "現代鍵盤特色", next: 4 },
               { text: "前往滑鼠", action: () => showSubUnit(3) }
             ]
           },
+          // 主要用途
           {
-            text: "鍵盤主要用於輸入文字與指令，播放音樂是其他設備的功能。",
+            text: "鍵盤的最直觀用途是輸入文字與資料。不論撰寫報告、電子郵件，鍵盤都提供快速且精確的輸入方式。每個按鍵對應特定符號、字母或功能，透過指尖敲擊，訊號即被傳送給電腦處理。",
             choices: [
-              { text: "再試一次", next: 0 }
+              { text: "快捷鍵與功能鍵", next: 2 },
+              { text: "控制區塊", next: 3 },
+              { text: "現代鍵盤特色", next: 4 },
+              { text: "前往滑鼠", action: () => showSubUnit(3) }
+            ]
+          },
+          // 快捷鍵與功能鍵
+          {
+            text: "鍵盤包含許多功能鍵與快捷鍵組合，可快速執行常見動作。例如：\n\nCtrl + C 複製、Ctrl + V 貼上\nAlt + Tab 切換視窗\nF2 重新命名檔案、F5 重新整理頁面\n這些組合鍵能大幅提升操作效率，讓使用者更流暢地進行各種任務。",
+            choices: [
+              { text: "主要用途", next: 1 },
+              { text: "控制區塊", next: 3 },
+              { text: "現代鍵盤特色", next: 4 },
+              { text: "前往滑鼠", action: () => showSubUnit(3) }
+            ]
+          },
+          // 控制區塊
+          {
+            text: "鍵盤有一區稱為功能區與控制鍵區塊，例如方向鍵、刪除鍵（Delete）、插入鍵（Insert）、頁面捲動鍵（Page Up/Page Down）等，這些都是用來輔助在檔案、文件或網頁中的移動與編輯。",
+            choices: [
+              { text: "主要用途", next: 1 },
+              { text: "快捷鍵與功能鍵", next: 2 },
+              { text: "現代鍵盤特色", next: 4 },
+              { text: "前往滑鼠", action: () => showSubUnit(3) }
+            ]
+          },
+          // 現代鍵盤特色
+          {
+            text: "現代鍵盤還可能整合更多功能，例如：<br>多媒體控制鍵：控制音量、播放、暫停等。<br>自定義巨集鍵：可自訂一連串操作流程。<br>人體工學設計：減少長時間打字造成的手腕與手臂疲勞。<br>背光鍵盤：方便在昏暗環境下輸入，並兼具美觀。",
+            choices: [
+              { text: "主要用途", next: 1 },
+              { text: "快捷鍵與功能鍵", next: 2 },
+              { text: "控制區塊", next: 3 },
+              { text: "前往滑鼠", action: () => showSubUnit(3) }
             ]
           }
         ],
+        
         // 滑鼠
         [
           {
-            text: "滑鼠屬於哪一類設備？",
+            text: "滑鼠是電腦常見的指標裝置，你知道滑鼠屬於哪一類設備嗎？",
             choices: [
               { text: "輸入設備", next: 1 },
               { text: "輸出設備", next: 2 }
             ]
           },
           {
-            text: "正確！滑鼠是輸入設備。最後來挑戰互動表格吧！",
+            text: "正確！滑鼠是輸入設備，讓我們能夠移動游標、點擊、拖曳、滾動，方便操作電腦介面。你想深入了解現代滑鼠的哪些特色？",
             choices: [
-              { text: "前往互動表格", action: () => showSubUnit(4) }
+              { text: "滾輪功能", next: 3 },
+              { text: "多鍵與自定義按鍵", next: 4 },
+              { text: "手勢與感應控制", next: 5 },
+              { text: "無線與連線方式", next: 6 },
+              { text: "前往小測驗", action: () => showSubUnit(4) }
             ]
           },
           {
-            text: "滑鼠是輸入設備，請再試一次！",
+            text: "滑鼠其實是輸入設備，負責將你的動作傳給電腦。再想想看！",
             choices: [
               { text: "再試一次", next: 0 }
             ]
+          },
+          // 滾輪功能
+          {
+            text: "現代滑鼠多數都配備了滾輪（Scroll Wheel）。滾輪的加入大幅簡化了頁面捲動、文件瀏覽與地圖縮放等操作，使用者只需輕輕轉動即可快速上下滑動，而不必依賴捲動條或鍵盤指令。部分高階滑鼠甚至配有可切換模式的滾輪，支援精細滾動與高速連續滾動，進一步提升效率。",
+            choices: [
+              { text: "多鍵與自定義按鍵", next: 4 },
+              { text: "手勢與感應控制", next: 5 },
+              { text: "無線與連線方式", next: 6 },
+              { text: "前往小測驗", action: () => showSubUnit(4) }
+            ]
+          },
+          // 多鍵與自定義按鍵
+          {
+            text: "許多滑鼠加入了多顆自定義按鍵，這些按鍵可依個人需求設定為特定功能，例如返回上一頁、開啟任務視窗、複製貼上，甚至是執行巨集命令。對於遊戲玩家、設計師、剪輯師或工程師來說，多鍵滑鼠可以大幅減少手部操作次數，提升操作效率與反應速度。",
+            choices: [
+              { text: "滾輪功能", next: 3 },
+              { text: "手勢與感應控制", next: 5 },
+              { text: "無線與連線方式", next: 6 },
+              { text: "前往小測驗", action: () => showSubUnit(4) }
+            ]
+          },
+          // 手勢與感應控制
+          {
+            text: "部分高階滑鼠或觸控板整合了觸控手勢技術，允許使用者透過滑動、點擊、滑撥等動作進行切換視窗、放大縮小、捲動等操作，這類功能特別常見於筆記型電腦的觸控板與 Apple 的 Magic Mouse 上。",
+            choices: [
+              { text: "滾輪功能", next: 3 },
+              { text: "多鍵與自定義按鍵", next: 4 },
+              { text: "無線與連線方式", next: 6 },
+              { text: "前往小測驗", action: () => showSubUnit(4) }
+            ]
+          },
+          // 無線與連線方式
+          {
+            text: "現代滑鼠也支援無線傳輸技術，常見的如藍牙與 2.4GHz 無線接收器，擺脫傳統有線滑鼠的線材限制，讓桌面更整潔、操作更自由。有些產品還提供可充電電池或長效省電設計，兼顧環保與便利性。",
+            choices: [
+              { text: "滾輪功能", next: 3 },
+              { text: "多鍵與自定義按鍵", next: 4 },
+              { text: "手勢與感應控制", next: 5 },
+              { text: "前往小測驗", action: () => showSubUnit(4) }
+            ]
           }
-        ]
+        ],
       ];
 
       const dialogue = dialogueSets[idx];
       if (!dialogue) {
-        // 沒有對話內容時，將 dialogue-system 的 margin-bottom 設為 0
+        // 沒有對話內容時，將 dialogue-system 的 margin-bottom 設為 0，並將 dialogue-text 的 border-left 設為 0
         const sys = document.getElementById('dialogue-system');
         if (sys) sys.style.marginBottom = '0';
+        const textDiv = document.getElementById('dialogue-text');
+        if (textDiv) textDiv.style.borderLeft = '0';
         return;
       }
       const textDiv = document.getElementById('dialogue-text');
@@ -505,7 +831,12 @@
 
       function renderDialogue(idx) {
         const node = dialogue[idx];
-        textDiv.textContent = node.text;
+        // 新增：如果有 img 屬性，顯示圖片
+        if (node.img) {
+          textDiv.innerHTML = `<img src="${node.img}" alt="" style="max-width:80px;max-height:80px;display:block;margin:0 auto 10px auto;">` + node.text.replace(/\n/g, "<br>");
+        } else {
+          textDiv.innerHTML = node.text.replace(/\n/g, "<br>");
+        }
         choicesDiv.innerHTML = '';
         node.choices.forEach(choice => {
           const btn = document.createElement('button');
@@ -562,6 +893,10 @@
             <div class="draggable-cell" draggable="true" data-type="output" style="border:1px solid #888;padding:6px 8px;border-radius:8px;cursor:grab;background:#f7f7f7;min-width:40px;text-align:center;">輸出設備</div>
             </div>
           </div>
+          <div style="margin-top:16px; display:flex; gap:12px;">
+            <button id="reset-table-btn" class="subunit-btn" style="background:#eee;color:#b75e14;">重設</button>
+            <button id="submit-table-btn" class="subunit-btn" style="background:#b75e14;color:#fff;">確認</button>
+          </div>
         </div>
       `;
 
@@ -594,8 +929,10 @@
             if(frame.id == "frame-input" || frame.id == "frame-output") {
               frame.innerHTML += html;
             } else {
-              // 僅允許一個cell
-              frame.innerHTML = html;
+                // 最多允許兩個cell，若已達兩個則不再加入
+                if ((frame.querySelectorAll('.draggable-cell').length || 0) < 2) {
+                  frame.innerHTML += html;
+                }
             }
             
             // 重新掛載拖拉事件
@@ -613,36 +950,55 @@
         });
       });
 
-      // 讓整個表格框可移動
-      const tableFrame = document.getElementById('table-frame-move');
-      let isDragging = false,
-        startX = 0,
-        startY = 0,
-        origX = 0,
-        origY = 0;
-      tableFrame.addEventListener('mousedown', function (e) {
-        if (e.target !== tableFrame) return;
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        const rect = tableFrame.getBoundingClientRect();
-        origX = rect.left;
-        origY = rect.top;
-        tableFrame.style.position = 'fixed';
-        tableFrame.style.zIndex = 99;
-        document.body.style.userSelect = 'none';
-      });
-      document.addEventListener('mousemove', function (e) {
-        if (!isDragging) return;
-        tableFrame.style.left = (origX + e.clientX - startX) + 'px';
-        tableFrame.style.top = (origY + e.clientY - startY) + 'px';
-      });
-      document.addEventListener('mouseup', function () {
-        if (isDragging) {
-          isDragging = false;
-          document.body.style.userSelect = '';
-        }
-      });
+      // Reset 按鈕事件
+      const resetBtn = document.getElementById('reset-table-btn');
+      if (resetBtn) {
+        resetBtn.onclick = () => {
+          renderInteractiveTableV2();
+        };
+      }
+
+      // Submit/確認 按鈕事件
+      const submitBtn = document.getElementById('submit-table-btn');
+      if (submitBtn) {
+        submitBtn.onclick = async () => {
+          // 驗證答案
+          const mouse = document.getElementById('frame-mouse').textContent.includes('輸入設備');
+          const keyboard = document.getElementById('frame-keyboard').textContent.includes('輸入設備');
+          const screen = document.getElementById('frame-screen').textContent.includes('輸出設備');
+          const speaker = document.getElementById('frame-speaker').textContent.includes('輸出設備');
+          const input = document.getElementById('frame-input').textContent.includes('滑鼠') && document.getElementById('frame-input').textContent.includes('鍵盤');
+          const output = document.getElementById('frame-output').textContent.includes('螢幕') && document.getElementById('frame-output').textContent.includes('喇叭');
+          let result = mouse && keyboard && screen && speaker && input && output;
+          let msg = result ? '恭喜，全部正確！' : '有些答案不正確，請再檢查。';
+          alert(msg);
+          // 儲存到 Airtable
+          if (currentUsername && userRecordId) {
+            const answerObj = {
+              mouse: document.getElementById('frame-mouse').textContent,
+              keyboard: document.getElementById('frame-keyboard').textContent,
+              screen: document.getElementById('frame-screen').textContent,
+              speaker: document.getElementById('frame-speaker').textContent,
+              input: document.getElementById('frame-input').textContent,
+              output: document.getElementById('frame-output').textContent,
+              correct: result,
+              time: new Date().toISOString()
+            };
+            try {
+              await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}/${userRecordId}`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ fields: { lastTableResult: JSON.stringify(answerObj) } })
+              });
+            } catch (e) {
+              // 可選：顯示同步失敗訊息
+            }
+          }
+        };
+      }
     }
 
     function openAIWebchat() {
@@ -654,6 +1010,17 @@
         // 僅在 webchat ready 時開啟
         if (window.botpress && typeof window.botpress.open === 'function') {
           window.botpress.open();
+          // 新增：傳送 username 和 progress 給 Botpress
+          if (typeof window.botpress.sendEvent === 'function') {
+            window.botpress.sendEvent({
+              type: 'custom',
+              channel: 'web',
+              payload: {
+                username: currentUsername,
+                progress: userProgress
+              }
+            });
+          }
         }
         webchatDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else {
@@ -664,12 +1031,13 @@
         }
       }
     }
-  </script>
-  <!-- Botpress 初始化腳本移到這裡 -->
-  <script>
+
+   // <!-- Botpress 初始化腳本移到這裡 -->
+
     window.botpress.on("webchat:ready", () => {
       window.botpress.open();
     });
+
     window.botpress.init({
       "botId": "8db1604b-6b48-4919-9a5c-4b3eb23948a4",
       "configuration": {
@@ -689,7 +1057,17 @@
         "additionalStylesheetUrl": "https://files.bpcontent.cloud/2025/05/20/06/20250520062811-KX8CLOG6.css"
       },
       "clientId": "51db9fc7-e92e-41f3-a0e2-d4105907deab",
-      "selector": "#webchat"
+      "selector": "#webchat",
+      "user": {
+        "data": {
+            "username": currentUsername,
+            "progress": userProgress
+        }
+      }
+    });
+    window.botpress.updateuser({
+      "username": currentUsername,
+      "progress": userProgress
     });
   </script>
 </body>
