@@ -589,8 +589,15 @@
           frame.style.background = '';
           const html = e.dataTransfer.getData('text/plain');
           if (html) {
-            // 僅允許一個cell
-            frame.innerHTML = html;
+            
+            // 檢查是否為有效的拖拉元素
+            if(frame.id == "frame-input" || frame.id == "frame-output") {
+              frame.innerHTML += html;
+            } else {
+              // 僅允許一個cell
+              frame.innerHTML = html;
+            }
+            
             // 重新掛載拖拉事件
             const dropped = frame.querySelector('.draggable-cell');
             if (dropped) {
