@@ -11,6 +11,7 @@
   <link href="./Main_files/css2" rel="stylesheet">
   <link rel="stylesheet" href="Main.css">
   <script src="https://cdn.botpress.cloud/webchat/v2.4/inject.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     #webchat .bpWebchat {
       position: unset;
@@ -111,7 +112,7 @@
       flex-direction: column !important;
       gap: 12px;
       display: flex;
-      align-items: flex-start;
+      align-items:
     }
 
     #dialogue-text {
@@ -590,14 +591,16 @@
     function showUnit(lessonId, unitIdx) {
       const unit = lessons[lessonId].units[unitIdx];
       document.getElementById('unit-title').textContent = unit.title;
-      // 判斷是否為"單元一：電腦的組成"
       if (unit.title.indexOf('電腦的組成') !== -1) {
         document.getElementById('unit-content').innerHTML = unit.content;
-        showSubUnit(0); // 預設顯示第一個子單元
+        showSubUnit(0);
       } else if (unit.title.indexOf('桌面操作') !== -1) {
         document.getElementById('unit-content').innerHTML = unit.content;
         renderMultitaskingDemo();
         renderDialogueSystemForUnit2();
+      } else if (unit.title.indexOf('檔案類型') !== -1) {
+        document.getElementById('unit-content').innerHTML = '<div id="filetype-explorer-container"></div>';
+        renderFileTypeExplorer();
       } else if (unit.title.indexOf('互動表格') !== -1) {
         document.getElementById('unit-content').innerHTML = unit.content;
         renderInteractiveTableV2();
@@ -1423,6 +1426,176 @@
           document.body.style.userSelect = '';
         }
       }
+    }
+
+    // 單元三：檔案類型 互動 file-explorer
+    function renderFileTypeExplorer() {
+      const container = document.getElementById('filetype-explorer-container');
+      if (!container) return;
+      container.innerHTML = '';
+      // Explorer frame
+      const explorer = document.createElement('div');
+      explorer.className = 'file-explorer';
+      explorer.style.maxWidth = '520px';
+      explorer.style.margin = '0 auto';
+      explorer.style.background = '#fff';
+      explorer.style.borderRadius = '8px';
+      explorer.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+      // Header
+      const header = document.createElement('div');
+      header.className = 'file-explorer-header';
+      header.textContent = '檔案總管 - 認識檔案類型';
+      explorer.appendChild(header);
+      // Content
+      const content = document.createElement('div');
+      content.className = 'file-explorer-content';
+      // Sidebar
+      const sidebar = document.createElement('div');
+      sidebar.className = 'file-explorer-sidebar';
+      ['文件', '圖片', '音樂', '影片', '下載'].forEach(folder => {
+        const folderItem = document.createElement('div');
+        folderItem.style.padding = '5px';
+        folderItem.style.cursor = 'pointer';
+        folderItem.style.display = 'flex';
+        folderItem.style.alignItems = 'center';
+        folderItem.style.gap = '5px';
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-folder';
+        icon.style.color = '#f39c12';
+        const text = document.createElement('span');
+        text.textContent = folder;
+        folderItem.appendChild(icon);
+        folderItem.appendChild(text);
+        sidebar.appendChild(folderItem);
+      });
+      content.appendChild(sidebar);
+      // Main area
+      const main = document.createElement('div');
+      main.className = 'file-explorer-main';
+      const files = [
+        { name: '報告.txt', type: 'txt', color: '#3498db', desc: '文字檔案，常用於純文字記錄', icon: 'fas fa-file-alt' },
+        { name: '照片.gif', type: 'gif', color: '#e74c3c', desc: '圖片檔案，常見於網頁動畫', icon: 'fas fa-file-image' },
+        { name: '文件.doc', type: 'doc', color: '#2980b9', desc: 'Word 文件，常用於文書處理', icon: 'fas fa-file-word' },
+        { name: '表格.tab', type: 'tab', color: '#27ae60', desc: '表格檔案，常見於資料交換', icon: 'fas fa-file-excel' },
+        { name: '程式.exe', type: 'exe', color: '#8e44ad', desc: '可執行檔案，Windows 應用程式', icon: 'fas fa-file-code' },
+        { name: '音樂.mp3', type: 'mp3', color: '#f1c40f', desc: '音樂檔案，常見音訊格式', icon: 'fas fa-file-audio' }
+      ];
+      files.forEach(file => {
+        const fileIcon = document.createElement('div');
+        fileIcon.className = 'file-icon';
+        fileIcon.style.cursor = 'pointer';
+        // FontAwesome icon
+        const icon = document.createElement('i');
+        icon.className = file.icon;
+        icon.style.color = file.color;
+        icon.style.fontSize = '2rem';
+        fileIcon.appendChild(icon);
+        // 檔案名稱
+        const name = document.createElement('div');
+        name.className = 'file-name';
+        name.textContent = file.name;
+        fileIcon.appendChild(name);
+        fileIcon.addEventListener('click', () => showFileTypeInfo(file));
+        main.appendChild(fileIcon);
+      });
+      content.appendChild(main);
+      explorer.appendChild(content);
+      container.appendChild(explorer);
+    }
+
+    // 顯示檔案類型資訊
+    function showFileTypeInfo(file) {
+      // 僅允許一個 info window
+      const container = document.getElementById('filetype-explorer-container');
+      let old = container.querySelector('.filetype-info-window');
+      if (old) old.remove();
+
+      // 建立 info window
+      const infoWindow = document.createElement('div');
+      infoWindow.className = 'filetype-info-window';
+      infoWindow.style.position = 'absolute';
+      infoWindow.style.top = '50%';
+      infoWindow.style.left = '50%';
+      infoWindow.style.transform = 'translate(-50%, -50%)';
+      infoWindow.style.width = '300px';
+      infoWindow.style.background = 'white';
+      infoWindow.style.boxShadow = '0 0 10px rgba(0,0,0,0.2)';
+      infoWindow.style.borderRadius = '5px';
+      infoWindow.style.zIndex = '100';
+
+      // 標題欄
+      const header = document.createElement('div');
+      header.style.background = '#3498db';
+      header.style.color = 'white';
+      header.style.padding = '10px';
+      header.style.borderTopLeftRadius = '5px';
+      header.style.borderTopRightRadius = '5px';
+      header.style.display = 'flex';
+      header.style.justifyContent = 'space-between';
+      header.style.alignItems = 'center';
+
+      const title = document.createElement('div');
+      title.textContent = '檔案資訊';
+      const closeBtn = document.createElement('div');
+      closeBtn.textContent = '×';
+      closeBtn.style.cursor = 'pointer';
+      closeBtn.style.fontSize = '20px';
+      closeBtn.addEventListener('click', () => infoWindow.remove());
+      header.appendChild(title);
+      header.appendChild(closeBtn);
+      infoWindow.appendChild(header);
+
+      // 內容
+      const content = document.createElement('div');
+      content.style.padding = '15px';
+      const fileInfo = [
+        { label: '檔案名稱', value: file.name },
+        { label: '檔案類型', value: `.${file.type}` },
+        { label: '大小', value: `${Math.floor(Math.random() * 1000) + 10} KB` },
+        { label: '建立日期', value: '2025-05-15 14:30:22' },
+        { label: '修改日期', value: '2025-05-17 09:45:18' }
+      ];
+      fileInfo.forEach(info => {
+        const row = document.createElement('div');
+        row.style.marginBottom = '10px';
+        row.style.display = 'flex';
+        const label = document.createElement('div');
+        label.style.width = '100px';
+        label.style.fontWeight = 'bold';
+        label.textContent = `${info.label}:`;
+        const value = document.createElement('div');
+        value.style.flex = '1';
+        value.textContent = info.value;
+        row.appendChild(label);
+        row.appendChild(value);
+        content.appendChild(row);
+      });
+      // 操作按鈕
+      const actions = document.createElement('div');
+      actions.style.display = 'flex';
+      actions.style.justifyContent = 'center';
+      actions.style.gap = '10px';
+      actions.style.marginTop = '15px';
+      ['開啟', '複製', '刪除'].forEach(op => {
+        const btn = document.createElement('button');
+        btn.textContent = op;
+        btn.style.padding = '5px 15px';
+        btn.style.border = 'none';
+        btn.style.borderRadius = '3px';
+        btn.style.background = '#3498db';
+        btn.style.color = 'white';
+        btn.style.cursor = 'pointer';
+        btn.addEventListener('mouseenter', () => btn.style.background = '#2980b9');
+        btn.addEventListener('mouseleave', () => btn.style.background = '#3498db');
+        btn.addEventListener('click', () => {
+          alert(`已${op}檔案: ${file.name}`);
+          infoWindow.remove();
+        });
+        actions.appendChild(btn);
+      });
+      content.appendChild(actions);
+      infoWindow.appendChild(content);
+      container.appendChild(infoWindow);
     }
   </script>
 </body>

@@ -529,3 +529,21 @@ position: relative;
   border-radius: 14px;
   text-align: center;
 }
+
+.file-explorer-content {
+  display: flex;
+  flex: 1;
+}
+.file-explorer-sidebar {
+  width: 30%;
+  background: #f8f9fa;
+  padding: 10px;
+  border-right: 1px solid #e9ecef;
+}
+.file-explorer-main {
+  flex: 1;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
