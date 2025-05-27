@@ -45,7 +45,6 @@ body {
   border-left: none;
 }
 
-
 .sidebar {
   z-index: 2;
   margin-left: 0;
@@ -56,7 +55,7 @@ body {
   border-bottom-right-radius: 0px;
   box-shadow: 4px 0 12px #a3492833;
   padding-top: 28px;
-  border-right: none;
+  border-right: 8px solid #c47323;
 }
 
 
@@ -70,6 +69,7 @@ body {
   border-bottom-left-radius: 0px;
   box-shadow: -4px 0 12px #a3492833;
   padding-top: 28px;
+    border-left: 8px solid #c47323;
 }
 
 .sidebar .nav-btn,
@@ -237,6 +237,7 @@ body {
 }
 
 .lesson-card .lesson-title {
+  z-index: 2;
   font-size: 1.35rem;
   font-weight: bold;
   color: #222;
@@ -479,13 +480,14 @@ body {
 
 .lesson-header {
   display: flex;
+  z-index: 5;
   justify-content: space-between;
   align-items: center;
   padding: 8px 32px;
   background-color: #C47323;
   height: 150px;
-  margin-left: -32px;
-  margin-right: -32px;
+  margin-left: -48px;
+  margin-right: -48px;
   margin-top: -30px;
 }
 
