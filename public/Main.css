@@ -45,23 +45,6 @@ body {
   border-left: none;
 }
 
-.rightbar::after {
-  content: "";
-  position: absolute;
-  top: 120px;
-  /* 控制邊框起始位置 */
-  left: 1045px;
-  width: 10px;
-  /* 邊框寬度 */
-  height: 86%;
-  max-height: 800px;
-  /* 邊框長度 */
-  background-color: #C47323;
-  border-radius: 0 0px 0px 0;
-  box-shadow: -4px 0 12px #a3492833;
-  /* 可選圓角 */
-}
-
 .sidebar {
   z-index: 2;
   margin-left: 0;
@@ -72,25 +55,9 @@ body {
   border-bottom-right-radius: 0px;
   box-shadow: 4px 0 12px #a3492833;
   padding-top: 28px;
-  border-right: none;
+  border-right: 8px solid #c47323;
 }
 
-.sidebar::after {
-  content: "";
-  position: absolute;
-  top: 120px;
-  /* 控制邊框起始位置 */
-  right: 1045px;
-  width: 10px;
-  /* 邊框寬度 */
-  height: 86%;
-  max-height: 800px;
-  /* 邊框長度 */
-  background-color: #C47323;
-  box-shadow: 4px 0 12px #a3492833;
-  border-radius: 0 0px 0px 0;
-  /* 可選圓角 */
-}
 
 .rightbar {
   z-index: 2;
@@ -102,6 +69,7 @@ body {
   border-bottom-left-radius: 0px;
   box-shadow: -4px 0 12px #a3492833;
   padding-top: 28px;
+    border-left: 8px solid #c47323;
 }
 
 .sidebar .nav-btn,
@@ -269,6 +237,7 @@ body {
 }
 
 .lesson-card .lesson-title {
+  z-index: 2;
   font-size: 1.35rem;
   font-weight: bold;
   color: #222;
@@ -382,7 +351,8 @@ body {
   text-shadow: 1px 1px 0 #a34928;
 }
 
-.rightbar .group-btn {
+/* 公開化 .group-btn 樣式，讓 sidebar/rightbar/main-area 都能共用 */
+.group-btn {
   background: #fff;
   color: #e08a3d;
   border: none;
@@ -398,11 +368,11 @@ body {
   position: relative;
 }
 
-.rightbar .group-btn:hover {
+.group-btn:hover {
   background: #ffe0b2;
 }
 
-.rightbar .group-btn.disabled-btn {
+.group-btn.disabled-btn {
   pointer-events: none;
   color: #aaa;
   background-color: rgba(255, 255, 255, 0.8);
@@ -410,7 +380,7 @@ body {
   position: relative;
 }
 
-.rightbar .group-btn.disabled-btn::after {
+.group-btn.disabled-btn::after {
   content: '待開發';
   position: absolute;
   top: 50%;
@@ -428,8 +398,8 @@ body {
   opacity: 1;
 }
 
-.rightbar .group-btn.disabled-btn:hover,
-.rightbar .group-btn.disabled-btn:focus {
+.group-btn.disabled-btn:hover,
+.group-btn.disabled-btn:focus {
   background-color: #fff;
   cursor: default;
   outline: none;
@@ -511,13 +481,14 @@ body {
 
 .lesson-header {
   display: flex;
+  z-index: 5;
   justify-content: space-between;
   align-items: center;
   padding: 8px 32px;
   background-color: #C47323;
   height: 150px;
-  margin-left: -32px;
-  margin-right: -32px;
+  margin-left: -48px;
+  margin-right: -48px;
   margin-top: -30px;
 }
 
