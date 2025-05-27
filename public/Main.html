@@ -529,7 +529,6 @@
           { title: '單元二：桌面操作', content: `
             <div id="desktop-demo-frame" style="margin: 8px 0;">
               <div style="border:2px solid #b75e14; border-radius:12px; padding:8px; background:#fff;">
-                <div style="font-size:1.05em; margin-bottom:8px; color:#b75e14; font-weight:bold;">模擬桌面多工操作</div>
                 <div id="multitasking-demo-container"></div>
                 <div style="margin-top:8px; font-size:0.95em; color:#888;">提示：點擊下方任務欄的應用程式，體驗多工視窗的開啟與拖曳。</div>
               </div>
@@ -598,6 +597,7 @@
       } else if (unit.title.indexOf('桌面操作') !== -1) {
         document.getElementById('unit-content').innerHTML = unit.content;
         renderMultitaskingDemo();
+        renderDialogueSystemForUnit2();
       } else if (unit.title.indexOf('互動表格') !== -1) {
         document.getElementById('unit-content').innerHTML = unit.content;
         renderInteractiveTableV2();
@@ -968,6 +968,71 @@
         });
       }
       renderDialogue(dialogueIdx);
+    }
+
+    // 對話選擇系統 for 單元二：桌面操作
+    function renderDialogueSystemForUnit2() {
+      const dialogue = [
+        
+        {
+          text: `現代作業系統普遍支援 <strong>桌面多工操作</strong>（Multitasking on Desktop），這項功能大幅提升了電腦的使用效率與彈性。<br><br>所謂多工操作，指的是在同一時間內，使用者可以同時執行並切換多個應用程式或工作項目，不必每完成一項任務就關閉視窗或程式，讓整體操作流程更加流暢、靈活。<br><br><strong>什麼是桌面多工操作？</strong><br>桌面多工操作包含以下幾種常見形式：<br><br>你想逐步了解這些多工技巧嗎？`,
+          choices: [
+            { text: "想了解每一種多工技巧！", next: 1 },
+            { text: "我會了，直接體驗模擬！", action: () => { renderMultitaskingDemo(); } }
+          ]
+        },
+        {
+          text: `<strong>1. 視窗分割與排列</strong><br>現代作業系統（如 Windows、macOS、Linux 等）都支援將多個視窗並排顯示或自動調整大小的功能。<br><br>舉例來說：<ul style='margin:8px 0 8px 18px;'><li>在 <strong>Windows</strong> 中，可拖曳視窗到螢幕邊緣讓它自動佔據一半畫面（Snap Layout），適合一邊參考資料、一邊編輯文件。</li><li><strong>macOS</strong> 提供 Split View 模式，可將兩個程式橫向分割顯示，避免視窗重疊干擾。</li></ul>這些功能讓你能同時處理多個任務，提升效率。<br><br>要繼續了解下一種多工技巧嗎？`,
+          choices: [
+            { text: "多虛擬桌面是什麼？", next: 2 },
+            { text: "直接體驗模擬！", action: () => { renderMultitaskingDemo(); } }
+          ]
+        },
+        {
+          text: `<strong>2. 多虛擬桌面（Virtual Desktops）</strong><br>虛擬桌面允許使用者建立多個桌面環境，各自運行不同的應用程式組合。例如：<ul style='margin:8px 0 8px 18px;'><li>第一個桌面用於瀏覽網頁與查資料</li><li>第二個桌面開啟簡報與文書工具</li><li>第三個桌面執行影片播放或設計軟體</li></ul>透過滑動手勢或快捷鍵快速切換，能有效分類工作與避免畫面雜亂。<br><br>要繼續了解下一種多工技巧嗎？`,
+          choices: [
+            { text: "任務切換與背景執行", next: 3 },
+            { text: "直接體驗模擬！", action: () => { renderMultitaskingDemo(); } }
+          ]
+        },
+        {
+          text: `<strong>3. 任務切換與背景執行</strong><br>使用者可以透過快捷鍵（如 <strong>Alt + Tab</strong>、<strong>Windows + Tab</strong>）快速在不同視窗與應用程式間切換，保持工作節奏不中斷。同時，系統也會允許一些程式在背景中運作，例如：<ul style='margin:8px 0 8px 18px;'><li>音樂播放</li><li>檔案下載</li><li>系統更新</li></ul>這些背景任務不會干擾你目前的操作。<br><br>還有一項多工相關的便利功能要介紹：`,
+          choices: [
+            { text: "通知與小工具整合", next: 4 },
+            { text: "直接體驗模擬！", action: () => { renderMultitaskingDemo(); } }
+          ]
+        },
+        {
+          text: `<strong>4. 通知與小工具整合</strong><br>多工操作也依賴系統層面的通知中心與工作列整合，讓使用者即使不主動開啟視窗，也能即時掌握來信、訊息、行事曆提醒等資訊，提升決策與反應速度。<br><br>你已經了解桌面多工操作的主要形式，現在可以動手體驗模擬囉！`,
+          choices: [
+            { text: "開始體驗桌面多工模擬", action: () => { renderMultitaskingDemo(); } }
+          ]
+        }
+      ];
+      const container = document.getElementById('multitasking-demo-container');
+      if (!container) return;
+      container.innerHTML = '<div id="unit2-dialogue-system" style="margin-bottom:12px;"><div id="unit2-dialogue-text" style="font-size:1.05em;min-height:40px;margin-bottom:12px;"></div><div id="unit2-dialogue-choices" style="display:flex;gap:12px;"></div></div>';
+      const textDiv = document.getElementById('unit2-dialogue-text');
+      const choicesDiv = document.getElementById('unit2-dialogue-choices');
+      let idx = 0;
+      function render(idx) {
+        textDiv.innerHTML = dialogue[idx].text;
+        choicesDiv.innerHTML = '';
+        dialogue[idx].choices.forEach(choice => {
+          const btn = document.createElement('button');
+          btn.textContent = choice.text;
+          btn.className = 'subunit-btn';
+          btn.onclick = () => {
+            if (typeof choice.action === 'function') {
+              choice.action();
+            } else if (typeof choice.next === 'number') {
+              render(choice.next);
+            }
+          };
+          choicesDiv.appendChild(btn);
+        });
+      }
+      render(idx);
     }
     // 新版互動式表格JS
     function renderInteractiveTableV2() {
