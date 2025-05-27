@@ -526,9 +526,17 @@
               </div>
             `
           },
-          { title: '單元二：桌面操作', content: '學習如何操作桌面、開啟程式、管理視窗。' },
-          { title: '單元三：輸入輸出設備', content: '認識各種輸入與輸出設備，例如滑鼠、鍵盤、印表機、螢幕等。' },
-          { title: '單元四：檔案類型', content: '了解常見的檔案類型與副檔名，如何辨識與管理。' },
+          { title: '單元二：桌面操作', content: `
+            <div id="desktop-demo-frame" style="margin: 8px 0;">
+              <div style="border:2px solid #b75e14; border-radius:12px; padding:8px; background:#fff;">
+                <div style="font-size:1.05em; margin-bottom:8px; color:#b75e14; font-weight:bold;">模擬桌面多工操作</div>
+                <div id="multitasking-demo-container"></div>
+                <div style="margin-top:8px; font-size:0.95em; color:#888;">提示：點擊下方任務欄的應用程式，體驗多工視窗的開啟與拖曳。</div>
+              </div>
+            </div>
+          ` },
+          { title: '單元三：檔案類型', content: '了解常見的檔案類型與副檔名，如何辨識與管理。' },
+          { title: '單元四：尚未設計', content: '' },
           { title: '單元五：多工處理', content: '介紹多工處理的基本概念與在作業系統中的應用。' },
           { title: '單元六：資料傳輸速度', content: '說明資料傳輸速度的單位與影響因素。' },
           { title: '單元七：電腦安全', content: '基礎電腦安全知識與防護措施。' },
@@ -587,6 +595,9 @@
       if (unit.title.indexOf('電腦的組成') !== -1) {
         document.getElementById('unit-content').innerHTML = unit.content;
         showSubUnit(0); // 預設顯示第一個子單元
+      } else if (unit.title.indexOf('桌面操作') !== -1) {
+        document.getElementById('unit-content').innerHTML = unit.content;
+        renderMultitaskingDemo();
       } else if (unit.title.indexOf('互動表格') !== -1) {
         document.getElementById('unit-content').innerHTML = unit.content;
         renderInteractiveTableV2();
@@ -1173,6 +1184,181 @@
       "username": currentUsername,
       "progress": userProgress
     });
+
+    // 桌面多工操作模擬
+    function renderMultitaskingDemo() {
+      const container = document.getElementById('multitasking-demo-container');
+      if (!container) return;
+      container.innerHTML = '';
+      // 建立桌面區域
+      const multitaskingContainer = document.createElement('div');
+      multitaskingContainer.className = 'multitasking-container';
+      multitaskingContainer.style.position = 'relative';
+      multitaskingContainer.style.width = '100%';
+      multitaskingContainer.style.maxWidth = '520px';
+      multitaskingContainer.style.height = '260px';
+      multitaskingContainer.style.background = '#f8f9fa';
+      multitaskingContainer.style.borderRadius = '8px';
+      multitaskingContainer.style.overflow = 'hidden';
+      multitaskingContainer.style.margin = '0 auto 8px auto';
+      multitaskingContainer.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+
+      // 建立任務欄
+      const taskBar = document.createElement('div');
+      taskBar.className = 'task-bar';
+      taskBar.style.position = 'absolute';
+      taskBar.style.bottom = '0';
+      taskBar.style.left = '0';
+      taskBar.style.width = '100%';
+      taskBar.style.height = '38px';
+      taskBar.style.background = '#2c3e50';
+      taskBar.style.display = 'flex';
+      taskBar.style.alignItems = 'center';
+      taskBar.style.gap = '12px';
+      taskBar.style.padding = '0 12px';
+      taskBar.style.zIndex = '10';
+
+      const tasks = [
+        { name: '文件編輯器', icon: '📝' },
+        { name: '瀏覽器', icon: '🌐' },
+        { name: '音樂播放器', icon: '🎵' },
+        { name: '計算機', icon: '🧮' }
+      ];
+      tasks.forEach(task => {
+        const taskItem = document.createElement('button');
+        taskItem.className = 'task-item';
+        taskItem.textContent = task.icon + ' ' + task.name;
+        taskItem.style.background = 'none';
+        taskItem.style.border = 'none';
+        taskItem.style.color = '#fff';
+        taskItem.style.fontSize = '1em';
+        taskItem.style.cursor = 'pointer';
+        taskItem.style.padding = '4px 10px';
+        taskItem.style.borderRadius = '6px';
+        taskItem.style.transition = 'background 0.2s';
+        taskItem.onmouseenter = () => taskItem.style.background = '#34495e';
+        taskItem.onmouseleave = () => taskItem.style.background = 'none';
+        taskItem.onclick = () => {
+          createDemoWindow(task.name, multitaskingContainer);
+        };
+        taskBar.appendChild(taskItem);
+      });
+      multitaskingContainer.appendChild(taskBar);
+      container.appendChild(multitaskingContainer);
+
+      // 預設開啟兩個視窗
+      setTimeout(() => createDemoWindow('文件編輯器', multitaskingContainer), 300);
+      setTimeout(() => createDemoWindow('瀏覽器', multitaskingContainer), 900);
+    }
+
+    // 建立可拖曳視窗
+    function createDemoWindow(title, container) {
+      // 檢查是否已開啟同名視窗
+      if ([...container.querySelectorAll('.demo-window')].some(w => w.getAttribute('data-title') === title)) return;
+      const win = document.createElement('div');
+      win.className = 'demo-window';
+      win.setAttribute('data-title', title);
+      win.style.position = 'absolute';
+      win.style.left = Math.random() * 220 + 30 + 'px';
+      win.style.top = Math.random() * 80 + 20 + 'px';
+      win.style.width = '180px';
+      win.style.height = '110px';
+      win.style.background = '#fff';
+      win.style.border = '2px solid #b75e14';
+      win.style.borderRadius = '8px';
+      win.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+      win.style.zIndex = 20 + container.querySelectorAll('.demo-window').length;
+      win.style.display = 'flex';
+      win.style.flexDirection = 'column';
+      win.style.overflow = 'hidden';
+      win.style.userSelect = 'none';
+
+      // 標題列
+      const titleBar = document.createElement('div');
+      titleBar.style.background = '#ffe5c2';
+      titleBar.style.color = '#b75e14';
+      titleBar.style.fontWeight = 'bold';
+      titleBar.style.padding = '4px 10px';
+      titleBar.style.cursor = 'move';
+      titleBar.style.display = 'flex';
+      titleBar.style.alignItems = 'center';
+      titleBar.style.justifyContent = 'space-between';
+      titleBar.textContent = title;
+      // 關閉按鈕
+      const closeBtn = document.createElement('button');
+      closeBtn.textContent = '✖';
+      closeBtn.style.background = 'none';
+      closeBtn.style.border = 'none';
+      closeBtn.style.color = '#b75e14';
+      closeBtn.style.fontWeight = 'bold';
+      closeBtn.style.cursor = 'pointer';
+      closeBtn.style.fontSize = '1em';
+      closeBtn.onclick = e => {
+        e.stopPropagation();
+        win.remove();
+      };
+      titleBar.appendChild(closeBtn);
+      win.appendChild(titleBar);
+      // 內容
+      const content = document.createElement('div');
+      content.style.flex = '1';
+      content.style.padding = '10px';
+      content.style.fontSize = '0.98em';
+      content.style.color = '#333';
+      content.style.overflow = 'auto';
+      switch (title) {
+        case '文件編輯器':
+          content.innerHTML = '這是一個文件編輯器視窗。<br>你可以在多工環境下同時開啟多個應用程式。';
+          break;
+        case '瀏覽器':
+          content.innerHTML = '這是一個瀏覽器視窗。<br>可同時瀏覽多個網頁。';
+          break;
+        case '音樂播放器':
+          content.innerHTML = '這是一個音樂播放器視窗。<br>可邊聽音樂邊工作。';
+          break;
+        case '計算機':
+          content.innerHTML = '這是一個計算機視窗。<br>可隨時進行計算。';
+          break;
+        default:
+          content.innerHTML = '應用程式內容';
+      }
+      win.appendChild(content);
+      container.appendChild(win);
+
+      // 拖曳功能
+      let isDragging = false, startX = 0, startY = 0, origX = 0, origY = 0;
+      titleBar.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = win.getBoundingClientRect();
+        const parentRect = container.getBoundingClientRect();
+        origX = rect.left - parentRect.left;
+        origY = rect.top - parentRect.top;
+        win.style.zIndex = 99;
+        document.body.style.userSelect = 'none';
+      });
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('mouseup', onStopDrag);
+      function onDrag(e) {
+        if (!isDragging) return;
+        const parentRect = container.getBoundingClientRect();
+        let x = origX + e.clientX - startX;
+        let y = origY + e.clientY - startY;
+        // 限制拖曳範圍
+        x = Math.max(0, Math.min(x, parentRect.width - win.offsetWidth));
+        y = Math.max(0, Math.min(y, parentRect.height - win.offsetHeight - 38));
+        win.style.left = x + 'px';
+        win.style.top = y + 'px';
+      }
+      function onStopDrag() {
+        if (isDragging) {
+          isDragging = false;
+          win.style.zIndex = 20 + container.querySelectorAll('.demo-window').length;
+          document.body.style.userSelect = '';
+        }
+      }
+    }
   </script>
 </body>
 
