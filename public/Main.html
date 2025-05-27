@@ -202,8 +202,54 @@
         </div>
         <!-- 個人檔案頁面 -->
         <div id="page-profile" style="display:none;">
-          <h2>個人檔案</h2>
-          <p>這裡是個人檔案內容。</p>
+          <h2 style="text-align:center; color:#b75e14; letter-spacing:2px; margin-bottom:18px;">個人檔案</h2>
+          <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start;justify-content:center;">
+            <!-- 基本資料卡 -->
+            <div style="background:#fff2e6;border-radius:14px;box-shadow:0 2px 8px #b75e1422;padding:24px 32px;min-width:260px;max-width:320px;">
+              <div style="text-align:center;">
+                <img src="images/ChatGPT Image 2025年4月30日 上午07_37_57 3.png" alt="頭像" style="width:90px;height:90px;border-radius:50%;margin-bottom:12px;border:3px solid #b75e14;">
+                <div style="font-size:1.2em;font-weight:bold;color:#e6bf9f;margin-bottom:4px;" id="profile-username"></div>
+                <div style="color:#888;font-size:0.98em;margin-bottom:8px;">學習者</div>
+                <button style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;" onclick="editProfile()">編輯資料</button>
+              </div>
+              <div style="margin-top:18px;">
+                <div style="color:#666;font-size:0.98em;margin-bottom:4px;">Email: <span id="profile-email">未設定</span></div>
+                <div style="color:#666;font-size:0.98em;margin-bottom:4px;">學校/單位: <span id="profile-school">未設定</span></div>
+                <div style="color:#666;font-size:0.98em;margin-bottom:4px;">年級: <span id="profile-grade">未設定</span></div>
+                <div style="color:#666;font-size:0.98em;margin-bottom:4px;">興趣: <span id="profile-interest">未設定</span></div>
+              </div>
+            </div>
+            <!-- 學習統計卡 -->
+            <div style="background:#e7f7e7;border-radius:14px;box-shadow:0 2px 8px #8ad08a22;padding:24px 32px;min-width:260px;max-width:320px;">
+              <div style="font-size:1.1em;font-weight:bold;color:#2a8a2a;margin-bottom:8px;">學習統計</div>
+              <div style="color:#333;margin-bottom:6px;">已完成課程：<span id="profile-courses" style="color:#b75e14;font-weight:bold;">0</span></div>
+              <div style="color:#333;margin-bottom:6px;">累積學習時數：<span id="profile-hours" style="color:#b75e14;font-weight:bold;">0</span> 小時</div>
+              <div style="color:#333;margin-bottom:6px;">獲得徽章：<span id="profile-badges" style="color:#b75e14;font-weight:bold;">0</span></div>
+              <div style="color:#333;margin-bottom:6px;">互動表格正確率：<span id="profile-table-rate" style="color:#b75e14;font-weight:bold;">0%</span></div>
+            </div>
+            <!-- 社群/好友卡 -->
+            <div style="background:#e7eaff;border-radius:14px;box-shadow:0 2px 8px #8a9fd022;padding:24px 32px;min-width:260px;max-width:320px;">
+              <div style="font-size:1.1em;font-weight:bold;color:#4a5eb7;margin-bottom:8px;">社群/好友</div>
+              <div style="color:#333;margin-bottom:6px;">好友數：<span id="profile-friends" style="color:#b75e14;font-weight:bold;">0</span></div>
+              <div style="color:#333;margin-bottom:6px;">討論區發文：<span id="profile-posts" style="color:#b75e14;font-weight:bold;">0</span></div>
+              <div style="color:#333;margin-bottom:6px;">作品數：<span id="profile-works" style="color:#b75e14;font-weight:bold;">0</span></div>
+              <button style="background:#4a5eb7;color:#f5d1d1;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;margin-top:8px;">邀請好友</button>
+            </div>
+          </div>
+          <!-- 編輯個人資料彈窗（簡易版） -->
+          <div id="profile-edit-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0006;z-index:9999;align-items:center;justify-content:center;">
+            <div style="background:#fff;padding:32px 28px;border-radius:12px;box-shadow:0 2px 16px #0003;max-width:340px;margin:auto;">
+              <h3 style="color:#b75e14;text-align:center;margin-bottom:18px;">編輯個人資料</h3>
+              <div style="margin-bottom:10px;">Email: <input id="edit-email" style="width:70%;" /></div>
+              <div style="margin-bottom:10px;">學校/單位: <input id="edit-school" style="width:70%;" /></div>
+              <div style="margin-bottom:10px;">年級: <input id="edit-grade" style="width:70%;" /></div>
+              <div style="margin-bottom:10px;">興趣: <input id="edit-interest" style="width:70%;" /></div>
+              <div style="text-align:center;margin-top:18px;">
+                <button onclick="saveProfileEdit()" style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;">儲存</button>
+                <button onclick="closeProfileEdit()" style="background:#eee;color:#b75e14;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;margin-left:10px;">取消</button>
+              </div>
+            </div>
+          </div>
         </div>
         <!-- 旅行頁面 -->
         <div id="page-adventure" style="display:none;">
@@ -235,6 +281,30 @@
         <div id="page-mission" style="display:none;">
           <h2>任務</h2>
           <p>這裡是任務內容。</p>
+          </div>
+        <!-- 作品頁面 -->
+        <div id="page-work" style="display:none;">
+          <h2 style="text-align:center; color:#b75e14; letter-spacing:2px; margin-bottom:18px;">作品展示</h2>
+          <div class="works-wrapper" style="display:flex;gap:28px;overflow-x:auto;padding:18px 0 10px 0;">
+            <div class="card" style="flex:0 0 320px;box-shadow:0 4px 16px #b75e1422;border-radius:18px;text-align:center;background:linear-gradient(135deg,#fffbe6 60%,#ffe5c2 100%);transition:box-shadow 0.2s;">
+              <img src="images/works/work1.jpg" alt="作品1" style="width:92%;border-radius:12px;margin:18px 0 14px 0;box-shadow:0 2px 8px #b75e1422;">
+              <div style="font-size:1.18em;font-weight:bold;color:#b75e14;margin-bottom:6px;">作品一</div>
+              <div style="color:#666;font-size:0.98em;margin-bottom:12px;">展示學生的創意與成果。</div>
+              <button style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;box-shadow:0 1px 4px #b75e1422;">查看詳情</button>
+            </div>
+            <div class="card" style="flex:0 0 320px;box-shadow:0 4px 16px #b75e1422;border-radius:18px;text-align:center;background:linear-gradient(135deg,#fffbe6 60%,#ffe5c2 100%);transition:box-shadow 0.2s;">
+              <img src="images/works/work2.jpg" alt="作品2" style="width:92%;border-radius:12px;margin:18px 0 14px 0;box-shadow:0 2px 8px #b75e1422;">
+              <div style="font-size:1.18em;font-weight:bold;color:#b75e14;margin-bottom:6px;">作品二</div>
+              <div style="color:#666;font-size:0.98em;margin-bottom:12px;">展現不同主題的學習成果。</div>
+              <button style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;box-shadow:0 1px 4px #b75e1422;">查看詳情</button>
+            </div>
+            <div class="card" style="flex:0 0 320px;box-shadow:0 4px 16px #b75e1422;border-radius:18px;text-align:center;background:linear-gradient(135deg,#fffbe6 60%,#ffe5c2 100%);transition:box-shadow 0.2s;">
+              <img src="images/works/work3.jpg" alt="作品3" style="width:92%;border-radius:12px;margin:18px 0 14px 0;box-shadow:0 2px 8px #b75e1422;">
+              <div style="font-size:1.18em;font-weight:bold;color:#b75e14;margin-bottom:6px;">作品三</div>
+              <div style="color:#666;font-size:0.98em;margin-bottom:12px;">鼓勵創新與實踐。</div>
+              <button style="background:#b75e14;color:#fff;border:none;border-radius:6px;padding:6px 18px;font-size:1em;cursor:pointer;box-shadow:0 1px 4px #b75e1422;">查看詳情</button>
+            </div>
+          </div>
         </div>
         <!-- 徽章頁面 -->
         <div id="page-badge" style="display:none;">
@@ -246,12 +316,12 @@
     </div>
     <!-- 右側欄 -->
     <div class="rightbar">
-      <button class="unit-btn1">切換單元</button>
+      <button class="unit-btn1" onclick="window.location.href='blank.hrml'">切換單元</button>
       <div class="dark-frame" style="visibility:hidden; margin-left: 12px;"></div>
       <div class="section-title">社群</div>
       <div class="dark-frame" style="margin-left: 12px;"></div>
       <button class="group-btn disabled-btn">討論區</button>
-      <button class="nav-btn2">作品</button>
+      <button class="nav-btn2" onclick="showPage('page-work')">作品</button>
       <button class="group-btn disabled-btn">好友</button>
       <button class="group-btn disabled-btn">排行榜</button>
       <button class="nav-btn2" onclick="openAIWebchat()">AI學伴</button>
@@ -339,14 +409,14 @@
         // 若目前在課程頁，刷新進度
         updateLessonProgressUI();
         // 新增：刷新學習紀錄卡片
-        renderLearningRecords();
+        renderLearningRecords(data);
       } catch (e) {
         setSyncStatus("同步失敗", "#c00");
       }
     }
 
     // 學習紀錄卡片渲染
-    function renderLearningRecords() {
+    function renderLearningRecords(data) {
       const recordsPage = document.getElementById('page-records');
       if (!recordsPage) return;
       let html = '<h2 style="text-align:center;">學習紀錄</h2>';
@@ -359,7 +429,7 @@
         const percent = Math.round(((unitIdx + 1) / total) * 100);
         const unitTitle = lesson.units[unitIdx]?.title || '';
         html += `
-          <div class="record-card" style="background:#fffbe6;border:1px solid #e0c08a;border-radius:10px;padding:18px 22px;min-width:220px;max-width:320px;box-shadow:0 2px 8px #0001;">
+          <div class="record-card" style="background:#fffbe6;border:1px solid #e0c08a;border-radius:10px;padding:18px 22px;min-width:220px;max-width:320px;box-shadow:0 2px 8px #0001; padding:8px">
             <div style="font-size:1.1em;font-weight:bold;color:#b75e14;margin-bottom:6px;">${lesson.title}</div>
             <div style="color:#333;margin-bottom:4px;">目前單元：<span style="color:#2a8a2a;">${unitTitle}</span></div>
             <div style="color:#888;margin-bottom:8px;">進度：<span style="color:#b75e14;font-weight:bold;">${percent}%</span></div>
@@ -372,6 +442,29 @@
       }
       html += '</div>';
       if (!hasRecord) html += '<div style="color:#888;margin-top:16px;">尚無學習紀錄</div>';
+
+      // 顯示互動表格作答紀錄
+      if (typeof data !== "undefined" && data.records && data.records.length > 0) {
+        const lastResult = data.records[0].fields.lastTableResult;
+        if (lastResult) {
+          try {
+            const obj = JSON.parse(lastResult);
+            html += `
+              <div class="record-card" style=" background:#e7f7e7;border:1px solid #8ad08a;border-radius:10px;padding:18px 22px;min-width:220px;max-width:320px;width:100%;box-sizing:border-box;box-shadow:0 2px 8px #0001;">
+                <div style="font-size:1.1em;font-weight:bold;color:#2a8a2a;margin-bottom:6px;">互動表格作答紀錄</div>
+                <div style="color:#333;margin-bottom:4px;">滑鼠：${obj.mouse || ""}</div>
+                <div style="color:#333;margin-bottom:4px;">鍵盤：${obj.keyboard || ""}</div>
+                <div style="color:#333;margin-bottom:4px;">螢幕：${obj.screen || ""}</div>
+                <div style="color:#333;margin-bottom:4px;">喇叭：${obj.speaker || ""}</div>
+                <div style="color:#333;margin-bottom:4px;">輸入設備：${obj.input || ""}</div>
+                <div style="color:#333;margin-bottom:4px;">輸出設備：${obj.output || ""}</div>
+                <div style="color:#888;margin-bottom:4px;">結果：<span style="color:${obj.correct ? '#2a8a2a' : '#c00'};font-weight:bold;">${obj.correct ? '正確' : '錯誤'}</span></div>
+                <div style="color:#888;font-size:0.95em;">時間：${obj.time ? new Date(obj.time).toLocaleString() : ''}</div>
+              </div>
+            `;
+          } catch (e) {}
+        }
+      }
       recordsPage.innerHTML = html;
     }
 
@@ -464,7 +557,7 @@
     };
 
     function showPage(pageId, lessonId) {
-      const pages = [ 'page-notes', 'page-courses', 'page-records', 'page-lesson', 'page-profile', 'page-adventure', 'page-mission', 'page-badge'];
+      const pages = [ 'page-notes', 'page-courses', 'page-records', 'page-lesson', 'page-profile', 'page-adventure', 'page-mission','page-work', 'page-badge'];
       pages.forEach(id => {
         document.getElementById(id).style.display = (id === pageId) ? '' : 'none';
       });
@@ -566,6 +659,17 @@
       // 對話引導
       renderDialogueSystemForSubunit(idx);
       if (idx === 4) renderInteractiveTableV2();
+
+      // 新增：根據子單元進度更新進度條
+      // 只在課堂頁、單元一時生效
+      const lessonTitle = document.getElementById('lesson-title').textContent;
+      let lessonId = '';
+      for (const k in lessons) if (lessons[k].title === lessonTitle) lessonId = k;
+      if (lessonId && lessons[lessonId].units[0].title.indexOf('電腦的組成') !== -1) {
+        // 單元一有5個子單元
+        const percent = Math.round(((idx + 1) / 5) * 100);
+        document.getElementById('lesson-progress').textContent = percent + '%';
+      }
     }
 
     // 對話選擇系統 for 單元一子單元
